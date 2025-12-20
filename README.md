@@ -1,59 +1,168 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Headless E-commerce Backoffice (Laravel + Inertia + React)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+This project is a **headless e-commerce backoffice** built with **Laravel 12**, **Inertia.js** and **React**.
 
-## About Laravel
+The goal is to provide a **scalable, backend-driven e-commerce engine** that can be reused across multiple storefronts, while keeping a powerful and developer-friendly admin panel.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+The frontend store (B2C) is intentionally **decoupled** and can be implemented using any technology (Next.js, Nuxt, mobile apps, etc.), consuming the exposed APIs.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+---
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Project Goals
 
-## Learning Laravel
+-   Headless, API-first architecture
+-   Backend-driven business logic
+-   Reusable across multiple e-commerce projects
+-   Clear domain separation
+-   Easy to extend and maintain over time
+-   Admin panel built with Inertia + React
+-   Frontend-agnostic storefronts
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+---
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Tech Stack
 
-## Laravel Sponsors
+### Backend
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+-   **Laravel 12**
+-   MySQL / PostgreSQL
+-   REST API (future-ready for GraphQL if needed)
 
-### Premium Partners
+### Admin Panel
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+-   **Inertia.js**
+-   **React**
+-   Tailwind CSS
 
-## Contributing
+### Authentication
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+-   Laravel Breeze (admin only)
 
-## Code of Conduct
+---
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## Architecture Overview
 
-## Security Vulnerabilities
+This project follows a **backend-driven, domain-oriented architecture**.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+-   The **admin panel** is the only frontend included in this repository
+-   The **storefront is external** and consumes APIs
+-   All business rules live in the backend
+
+Backend (Laravel)
+├── Domains
+│ ├── Catalog
+│ ├── Pricing
+│ ├── Inventory
+│ ├── Orders
+│ └── ...
+├── Http
+│ ├── Controllers (Admin / API)
+│ └── Requests
+├── Models
+└── Actions (Domain logic)
+
+> Note: Models currently live in `app/Models`.  
+> Domain folders are progressively introduced where business logic grows.
+
+---
+
+## Core Concepts
+
+### Products & Variants
+
+-   A **Product** represents a conceptual item (e.g. "T-Shirt")
+-   A **Product Variant** represents a sellable item (e.g. "T-Shirt / Black / M")
+-   Every product **must have at least one variant**
+-   Variants are the single source of truth for:
+    -   Pricing
+    -   Inventory
+    -   SKU
+
+This design avoids edge cases and scales naturally to complex catalogs.
+
+---
+
+### Pricing (Current State)
+
+-   Prices are stored as **integers** (minor units, e.g. cents)
+-   A base currency is currently assumed
+-   Multi-currency support is planned as a first-class feature
+
+---
+
+## Admin Panel
+
+The admin panel allows administrators to:
+
+-   Create and manage products
+-   Define product variants
+-   Assign prices to variants
+-   Manage catalog data
+
+The admin UI is built using **Inertia + React**, keeping backend and frontend tightly aligned without exposing APIs internally.
+
+---
+
+## API Layer
+
+The API layer is designed to:
+
+-   Serve one or more external storefronts
+-   Be independent from the admin panel
+-   Expose only validated, normalized data
+
+API endpoints are versionable and structured to evolve without breaking consumers.
+
+---
+
+## Current Status
+
+✅ Project bootstrapped  
+✅ Authentication (admin)  
+✅ Catalog domain foundation  
+✅ Products & variants schema  
+✅ Base pricing model  
+✅ Admin product creation flow
+
+🚧 In progress:
+
+-   Variant attributes & options
+-   Inventory management
+-   Multi-currency pricing
+-   Checkout & orders
+-   Payments & shipping integrations
+
+---
+
+## Installation
+
+```bash
+git clone <repository-url>
+cd project-name
+
+composer install
+npm install
+
+cp .env.example .env
+php artisan key:generate
+
+php artisan migrate
+npm run dev
+php artisan serve
+```
+
+## Philosophy
+
+This project is not a “ready-made shop”.
+
+It is a foundation:
+
+opinionated where needed
+
+flexible where it matters
+
+designed for developers building real-world e-commerce solutions
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This project is open-source and licensed under the MIT license.
