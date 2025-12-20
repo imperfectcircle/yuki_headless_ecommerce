@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Price;
 use App\Models\Product;
+use App\Models\AttributeOption;
 use Illuminate\Database\Eloquent\Model;
 
 class ProductVariant extends Model
@@ -22,5 +23,10 @@ class ProductVariant extends Model
     public function prices()
     {
         return $this->morphMany(Price::class, 'priceable');
+    }
+
+    public function options()
+    {
+        return $this->belongsToMany(AttributeOption::class, 'product_variant_option');
     }
 }
