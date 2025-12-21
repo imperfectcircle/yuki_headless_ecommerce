@@ -77,9 +77,9 @@ Backend (Laravel)
 ### Explanation
 
 -   **Domains**: Contains domain-specific logic grouped by business area.
--   **Http**: Controllers and request validation.
 -   **Models**: Eloquent models representing database entities, now organized per domain
 -   **Actions**: Encapsulate all domain business logic
+-   **Http**: Controllers and request validation.
 
 ---
 
@@ -111,8 +111,14 @@ This design avoids edge cases and scales naturally to complex catalogs.
 ### Inventory
 
 -   Each ProductVariant has an associated inventory record
--   Inventory fields: - quantity: total stock - reserved: stock currently reserved - backorder_allowed: optional, configurable per variant
--   Actions: - ReserveInventory → reserves stock for a given quantity - ReleaseInventory → releases reserved stock safely - ConfirmInventory → finalizes inventory consumption upon order confirmation
+-   Inventory fields:
+    -   quantity: total stock
+    -   reserved: stock currently reserved
+    -   backorder_allowed: optional, configurable per variant
+-   Actions:
+    -   ReserveInventory → reserves stock for a given quantity
+    -   ReleaseInventory → releases reserved stock safely
+    -   ConfirmInventory → finalizes inventory consumption upon order confirmation
 
 ---
 
@@ -221,9 +227,9 @@ The API layer is designed to:
 ✅ Authentication (admin)  
 ✅ Catalog domain foundation  
 ✅ Products & variants schema  
-✅ Pricing with multi-currency support
-✅ Inventory reservation and release actions
-✅ Order and OrderItem snapshots
+✅ Pricing with multi-currency support  
+✅ Inventory reservation and release actions  
+✅ Order and OrderItem snapshots  
 ✅ CreateOrder action
 
 🚧 In progress:
