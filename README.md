@@ -51,26 +51,35 @@ This project follows a **backend-driven, domain-oriented architecture**.
 ```
 Backend (Laravel)
 ├── Domains
-│ ├── Catalog
-│ ├── Pricing
-│ ├── Inventory
-│ ├── Orders
-│ └── ...
+│   ├── Catalog
+│   │   ├── Models (Product, ProductVariant, Attribute, AttributeOption)
+│   │   ├── Actions (GenerateProductVariants)
+│   │   └── ...
+│   ├── Pricing
+│   │   ├── Models (Price, Currency)
+│   │   ├── Actions (SetVariantPrice)
+│   │   └── ...
+│   ├── Inventory
+│   │   ├── Models (Inventory)
+│   │   ├── Actions (ReserveInventory, ReleaseInventory, ConfirmInventory)
+│   │   └── ...
+│   ├── Orders
+│   │   ├── Models (Order, OrderItem)
+│   │   ├── Actions (CreateOrder, ConfirmInventory)
+│   │   └── ...
+│   └── ...
 ├── Http
-│ ├── Controllers (Admin / API)
-│ └── Requests
-├── Models
-└── Actions (Domain logic)
+│   ├── Controllers (Admin / API)
+│   └── Requests
+└── ...
 ```
 
 ### Explanation
 
 -   **Domains**: Contains domain-specific logic grouped by business area.
 -   **Http**: Controllers and request validation.
--   **Models**: Eloquent models representing database entities.
--   **Actions**: Domain actions encapsulating business logic.
-    > Note: Models currently live in `app/Models`.  
-    > Domain folders are progressively introduced where business logic grows.
+-   **Models**: Eloquent models representing database entities, now organized per domain
+-   **Actions**: Encapsulate all domain business logic
 
 ---
 
@@ -93,21 +102,105 @@ This design avoids edge cases and scales naturally to complex catalogs.
 ### Pricing (Current State)
 
 -   Prices are stored as **integers** (minor units, e.g. cents)
--   A base currency is currently assumed
--   Multi-currency support is planned as a first-class feature
+-   Multi-currency support is implemented via the Currency model
+-   Each variant can have multiple prices in different currencies, with validity ranges and VAT rates
+-   Prices are linked to variants via a polymorphic relation
 
 ---
 
+### Inventory
+
+-   Each ProductVariant has an associated inventory record
+-   Inventory fields: - quantity: total stock - reserved: stock currently reserved - backorder_allowed: optional, configurable per variant
+-   Actions: - ReserveInventory → reserves stock for a given quantity - ReleaseInventory → releases reserved stock safely - ConfirmInventory → finalizes inventory consumption upon order confirmation
+
+---
+
+### Orders & OrderItems
+
+-   Order represents a customer purchase
+-   OrderItem stores a snapshot of the variant at the time of purchase:
+    -   SKU
+    -   Name
+    -   Attributes
+    -   Price per unit
+    -   Quantity
+    -   Total
+-   Orders store monetary and customer snapshots, ensuring historical consistency
+-   Actions:
+    -   CreateOrder → creates order + items with calculated totals
+    -   ConfirmInventory → decrements stock based on order items, respecting reserved quantities and backorder rules
+
+---
+
+### Inventory & Order Flow
+
+```
++--------------------+
+|  Customer adds     |
+|  items to cart     |
++--------------------+
+          |
+          v
++--------------------+
+|  CreateOrder       |
+|  (Order draft)     |
+|  + snapshot items  |
++--------------------+
+          |
+          v
++--------------------+
+|  ReserveInventory  |
+|  - check stock     |
+|  - reserve qty     |
+|  - backorder opt.  |
++--------------------+
+          |
+          v
++--------------------+
+|  Payment Success   |
++--------------------+
+          |
+          v
++--------------------+
+|  ConfirmInventory  |
+|  - decrement stock |
+|  - mark confirmed  |
+|  - atomic tx       |
++--------------------+
+          |
+          v
++--------------------+
+|  Order status =    |
+|  confirmed         |
++--------------------+
+          |
+          v
++--------------------+
+|  Shipping /        |
+|  Fulfillment       |
++--------------------+
+```
+
+Notes:
+
+-   ReserveInventory and ReleaseInventory are idempotent, safe to call multiple times
+-   CreateOrder snapshots products, prices, and attributes
+-   ConfirmInventory is the point of no return: stock is permanently decremented
+-   Backorder is optional per variant; if enabled, ReserveInventory can exceed actual stock
+
 ## Admin Panel
 
-The admin panel allows administrators to:
+The admin panel will allows administrators to:
 
 -   Create and manage products
 -   Define product variants
 -   Assign prices to variants
 -   Manage catalog data
+-   Manage inventory
+-   Manage orders
 
-The admin UI is built using **Inertia + React**, keeping backend and frontend tightly aligned without exposing APIs internally.
+Built using Inertia + React, the admin panel is tightly integrated with backend logic.
 
 ---
 
@@ -115,11 +208,10 @@ The admin UI is built using **Inertia + React**, keeping backend and frontend ti
 
 The API layer is designed to:
 
--   Serve one or more external storefronts
+-   Serve external storefronts
 -   Be independent from the admin panel
 -   Expose only validated, normalized data
-
-API endpoints are versionable and structured to evolve without breaking consumers.
+-   Support multi-currency pricing and inventory operations
 
 ---
 
@@ -129,16 +221,66 @@ API endpoints are versionable and structured to evolve without breaking consumer
 ✅ Authentication (admin)  
 ✅ Catalog domain foundation  
 ✅ Products & variants schema  
-✅ Base pricing model  
-✅ Admin product creation flow
+✅ Pricing with multi-currency support
+✅ Inventory reservation and release actions
+✅ Order and OrderItem snapshots
+✅ CreateOrder action
 
 🚧 In progress:
 
--   Variant attributes & options
--   Inventory management
--   Multi-currency pricing
--   Checkout & orders
--   Payments & shipping integrations
+-   ConfirmInventory flow
+-   Shipping, discounts, payments
+-   Event-driven notifications
+-   Frontend storefront integration
+
+---
+
+## Next Steps / Roadmap
+
+This section outlines the remaining key features and improvements planned for the headless e-commerce backoffice:
+
+### Orders & Inventory
+
+-   **ConfirmInventory action**
+    -   Finalizes stock decrement after successful payment
+    -   Ensures atomic transactions
+    -   Supports backorder logic per variant
+-   **Inventory Events / Notifications**
+    -   Trigger events when stock is low, reserved, released, or confirmed
+    -   Optional webhook integration for external systems
+
+## Checkout & Payments
+
+-   **Payment gateway integration**
+    -   Stripe, PayPal, or other providers
+    -   Payment status updates tied to orders
+    -   Refunds and cancellations handling
+-   **Shipping & Fulfillment**
+    -   Shipping rate calculation (fixed rates or carrier API)
+    -   Order status updates upon shipment
+    -   Support for multiple shipping addresses
+-   **Discounts / Coupons / Promotions**
+    -   Percentage or fixed discounts
+    -   Rules-based applicability (product, category, order total)
+    -   Expiry dates and usage limits
+
+## Multi-Currency & Localization
+
+-   Frontend selection of currency
+-   Backend currency management
+-   Price conversion, formatting, and rounding rules
+
+## Frontend Storefront Integration
+
+-   REST API endpoints versioned and documented
+-   API responses normalized and filtered for frontend consumption
+-   Potential GraphQL endpoint in future
+
+## Developer Experience
+
+-   Improve domain actions with interfaces and tests
+-   Seeders and factories for easy local development
+-   Documentation and example requests for API consumers
 
 ---
 
