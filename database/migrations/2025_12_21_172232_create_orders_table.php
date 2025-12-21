@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
 
             $table->string('number')->unique(); // ORD-2025-000123
-            $table->string('status');
+            $table->string('status')->default('draft');
 
             // Monetary snapshot
             $table->string('currency', 3);
@@ -27,7 +27,7 @@ return new class extends Migration
             // Customer snapshot 
             $table->string('customer_email');
             $table->string('customer_name')->nullable();
-            
+
             $table->timestamps();
         });
     }
