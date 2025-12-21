@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Price;
 use App\Models\Product;
+use App\Models\Inventory;
 use App\Models\AttributeOption;
 use Illuminate\Database\Eloquent\Model;
 
@@ -28,6 +29,11 @@ class ProductVariant extends Model
     public function options()
     {
         return $this->belongsToMany(AttributeOption::class, 'product_variant_option');
+    }
+
+    public function inventory()
+    {
+        return $this->hasOne(Inventory::class);
     }
 
     /**

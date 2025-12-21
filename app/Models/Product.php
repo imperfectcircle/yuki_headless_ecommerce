@@ -8,7 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model
 {
-    protected $fillable = ['name', 'slug', 'description', 'status'];
+    protected $fillable = ['name', 'slug', 'description', 'status', 'backorder_enabled'];
+
+    protected $casts = [
+        'backorder_enabled' => 'boolean',
+    ];
 
     public function attributes()
     {
