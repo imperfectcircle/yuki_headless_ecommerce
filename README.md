@@ -255,7 +255,7 @@ This section outlines the remaining key features and improvements planned for th
     -   Trigger events when stock is low, reserved, released, or confirmed
     -   Optional webhook integration for external systems
 
-## Checkout & Payments
+### Checkout & Payments
 
 -   **Payment gateway integration**
     -   Stripe, PayPal, or other providers
@@ -270,19 +270,19 @@ This section outlines the remaining key features and improvements planned for th
     -   Rules-based applicability (product, category, order total)
     -   Expiry dates and usage limits
 
-## Multi-Currency & Localization
+### Multi-Currency & Localization
 
 -   Frontend selection of currency
 -   Backend currency management
 -   Price conversion, formatting, and rounding rules
 
-## Frontend Storefront Integration
+### Frontend Storefront Integration
 
 -   REST API endpoints versioned and documented
 -   API responses normalized and filtered for frontend consumption
 -   Potential GraphQL endpoint in future
 
-## Developer Experience
+### Developer Experience
 
 -   Improve domain actions with interfaces and tests
 -   Seeders and factories for easy local development
