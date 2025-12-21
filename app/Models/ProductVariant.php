@@ -29,4 +29,17 @@ class ProductVariant extends Model
     {
         return $this->belongsToMany(AttributeOption::class, 'product_variant_option');
     }
+
+    /**
+     * Get current active price for a currency
+     */
+    public function currentPrice(string $currency): ?Price
+    {
+        return $this->prices()
+            ->active()
+            ->validAt()
+            ->where('currency', $currency)
+            ->orderByDesc('valid_from')
+            ->first();
+    }
 }

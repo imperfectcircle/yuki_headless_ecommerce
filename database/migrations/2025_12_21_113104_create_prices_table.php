@@ -13,15 +13,15 @@ return new class extends Migration
     {
         Schema::create('prices', function (Blueprint $table) {
             $table->id();
-            $table->morphs('priceable');
-            $table->string('currency', 3);
-            $table->integer('amount'); // amount in smallest currency unit (e.g., cents)
-            $table->decimal('vat_rate', 5, 2);
-            $table->timestamp('valid_from')->nullable();
-            $table->timestamp('valid_to')->nullable();
+            $table->foreignId('product_variant_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('currency_id')->constrained()->cascadeOnDelete();
+
+            $table->bigInteger('amount'); // stored in smallest currency unit (e.g., cents)
             $table->boolean('is_active')->default(true);
+
             $table->timestamps();
-            $table->index(['priceable_type', 'priceable_id', 'currency']);
+
+            $table->unique(['product_variant_id', 'currency_id']);
         });
     }
 
