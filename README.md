@@ -48,6 +48,7 @@ This project follows a **backend-driven, domain-oriented architecture**.
 -   The **storefront is external** and consumes APIs
 -   All business rules live in the backend
 
+```
 Backend (Laravel)
 ├── Domains
 │ ├── Catalog
@@ -60,9 +61,16 @@ Backend (Laravel)
 │ └── Requests
 ├── Models
 └── Actions (Domain logic)
+```
 
-> Note: Models currently live in `app/Models`.  
-> Domain folders are progressively introduced where business logic grows.
+### Explanation
+
+-   **Domains**: Contains domain-specific logic grouped by business area.
+-   **Http**: Controllers and request validation.
+-   **Models**: Eloquent models representing database entities.
+-   **Actions**: Domain actions encapsulating business logic.
+    > Note: Models currently live in `app/Models`.  
+    > Domain folders are progressively introduced where business logic grows.
 
 ---
 
@@ -157,11 +165,11 @@ This project is not a “ready-made shop”.
 
 It is a foundation:
 
-opinionated where needed
+-   opinionated where needed
 
-flexible where it matters
+-   flexible where it matters
 
-designed for developers building real-world e-commerce solutions
+-   designed for developers building real-world e-commerce solutions
 
 ## License
 
