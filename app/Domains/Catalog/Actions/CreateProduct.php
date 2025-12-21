@@ -23,7 +23,7 @@ class CreateProduct
             ]);
 
             $variant->prices()->create([
-                'currency' => config('ecommerce.base_currency'),
+                'currency' => 'EUR',
                 'amount' => $data['price'],
                 'vat_rate' => $data['vat_rate'] ?? 22,
             ]);

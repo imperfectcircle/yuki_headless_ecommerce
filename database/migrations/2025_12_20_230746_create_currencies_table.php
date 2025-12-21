@@ -15,9 +15,10 @@ return new class extends Migration
             $table->id();
             $table->string('code', 3)->unique(); // EUR, USD, etc.
             $table->string('symbol');
-            $table->decimal('exchange_rate', 10, 6); // Rate against a base currency
-            $table->boolean('is_base')->default(false);
+            $table->string('name');
             $table->boolean('is_active')->default(true);
+            $table->unsignedInteger('precision')->default(2); // number of decimal places
+            $table->timestamps();
         });
     }
 
