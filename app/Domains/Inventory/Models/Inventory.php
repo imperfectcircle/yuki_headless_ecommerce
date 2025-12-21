@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Models;
+namespace App\Domains\Inventory\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Domains\Catalog\Models\ProductVariant;
 
 class Inventory extends Model
 {

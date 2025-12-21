@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Models;
+namespace App\Domains\Catalog\Models;
 
-use App\Models\Attribute;
-use App\Models\ProductVariant;
+use App\Domains\Catalog\Models\Attribute;
+use App\Domains\Catalog\Models\ProductVariant;
 use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model

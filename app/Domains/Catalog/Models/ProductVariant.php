@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Models;
+namespace App\Domains\Catalog\Models;
 
-use App\Models\Price;
-use App\Models\Product;
-use App\Models\Inventory;
-use App\Models\AttributeOption;
+use App\Domains\Pricing\Models\Price;
+use App\Domains\Catalog\Models\Product;
+use App\Domains\Inventory\Models\Inventory;
+use App\Domains\Catalog\Models\AttributeOption;
 use Illuminate\Database\Eloquent\Model;
 
 class ProductVariant extends Model

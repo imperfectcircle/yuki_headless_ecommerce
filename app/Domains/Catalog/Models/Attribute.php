@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Models;
+namespace App\Domains\Catalog\Models;
 
-use App\Models\AttributeOption;
+use App\Domains\Catalog\Models\AttributeOption;
 use Illuminate\Database\Eloquent\Model;
 
 class Attribute extends Model

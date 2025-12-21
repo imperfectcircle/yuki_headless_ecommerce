@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Domains\Catalog\Actions;
+namespace App\Domains\Pricing\Actions;
 
-use App\Models\Price;
-use App\Models\ProductVariant;
+use App\Domains\Pricing\Models\Price;
+use App\Domains\Catalog\Models\ProductVariant;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 

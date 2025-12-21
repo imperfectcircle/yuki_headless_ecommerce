@@ -2,8 +2,8 @@
 
 namespace App\Domains\Catalog\Actions;
 
-use App\Models\Product;
-use App\Models\ProductVariant;
+use App\Domains\Catalog\Models\Product;
+use App\Domains\Catalog\Models\ProductVariant;
 use Illuminate\Support\Facades\DB;
 
 class GenerateProductVariants
