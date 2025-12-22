@@ -48,4 +48,18 @@ class ProductVariant extends Model
             ->orderByDesc('valid_from')
             ->first();
     }
+    
+    /**
+     * Get price for a specific currency code
+     */
+    public function priceForCurrency(string $currencyCode): ?Price
+    {
+        return $this->prices()
+            ->whereHas('currency', fn ($q) => 
+                $q->where('code', $currencyCode)->where('is_active', true)
+            )
+            ->where('is_active', true)
+            ->orderByDesc('valid_from')
+            ->first();
+    }
 }
