@@ -1,5 +1,8 @@
 <?php
 
+// @deprecated (for now)
+// Used for direct API or admin use cases
+
 namespace App\Domains\Order\Actions;
 
 use App\Domains\Catalog\Models\ProductVariant;
