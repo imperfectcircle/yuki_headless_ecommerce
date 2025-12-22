@@ -30,6 +30,9 @@ class ReserveOrderInventory
 
             $order->update([
                 'status' => Order::STATUS_RESERVED,
+                'reserved_until' => now()->addMinutes(
+                    config('orders.reservation_timeout', 15)
+                ),
             ]);
         });
     }
