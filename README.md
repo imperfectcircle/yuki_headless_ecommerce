@@ -66,7 +66,6 @@ Backend (Laravel)
 │ ├── Inventory
 │ │ ├── Models (Inventory)
 │ │ ├── Actions
-| | | |-- ConfirmInventory
 │ │ │ ├── ReserveInventory
 | | | |-- ReleaseInventory
 │ │ │ ├── ReserveOrderInventory
@@ -134,16 +133,26 @@ Backend (Laravel)
 #### Inventory Actions
 
 -   `ReserveInventory`  
-    Reserves stock for a single variant
+    Reserves stock for a single product variant, increasing the `reserved` quantity.
+    It validates availability and backorder rules at variant level.
 
 -   `ReserveOrderInventory`  
-    Orchestrates reservation for all order items
+    Orchestrates inventory reservation for all order items.
+    Ensures that either all items are successfully reserved or none are.
+
+-   `ReleaseInventory`
+    Releases previously reserved stock for a single product variant,
+    decreasing the `reserved` quantity without affecting total stock.
+    This action is safe to call multiple times and will never result in negative reservations.
 
 -   `ConfirmOrderInventory`  
-    Finalizes stock consumption after successful payment
+    Finalizes stock consumption after a successful payment.
+    Decrements both `reserved` and `quantity` and transitions the order
+    to its final paid state in a single atomic transaction.
 
 -   `ReleaseOrderInventory`  
-    Releases reserved stock after failure or timeout
+    Releases all reserved stock for an order after payment failure,
+    cancellation, or automatic reservation timeout.
 
 All inventory actions are **transactional and idempotent**.
 
@@ -210,11 +219,13 @@ Webhook / API Controller
 HandleSuccessfulPayment | HandleFailedPayment
         ↓
 Order + Inventory domain actions
+```
 
 This ensures:
-- Provider-agnostic domain logic
-- Idempotent payment handling
-- Easy extension to new gateways
+
+-   Provider-agnostic domain logic
+-   Idempotent payment handling
+-   Easy extension to new gateways
 
 ---
 
@@ -222,10 +233,10 @@ This ensures:
 
 Administrators can:
 
-- Manage products and variants
-- Define prices and currencies
-- Manage inventory and backorders
-- View and manage orders
+-   Manage products and variants
+-   Define prices and currencies
+-   Manage inventory and backorders
+-   View and manage orders
 
 The admin UI is built with **Inertia + React**, tightly integrated with backend logic.
 
@@ -235,10 +246,10 @@ The admin UI is built with **Inertia + React**, tightly integrated with backend 
 
 The API layer is designed to:
 
-- Serve external storefronts
-- Be independent from the admin panel
-- Expose normalized, validated data
-- Support multi-currency pricing and inventory operations
+-   Serve external storefronts
+-   Be independent from the admin panel
+-   Expose normalized, validated data
+-   Support multi-currency pricing and inventory operations
 
 ---
 
@@ -254,25 +265,47 @@ The API layer is designed to:
 ✅ Payment handling (domain-pure)
 
 🚧 In progress:
-- Shipping & fulfillment
-- Discounts & promotions
-- Event-driven notifications
-- Storefront integration
+
+-   Shipping & fulfillment
+-   Discounts & promotions
+-   Event-driven notifications
+-   Storefront integration
 
 ---
+
+## Installation
+
+```bash
+git clone <repository-url>
+cd project-name
+
+composer install
+npm install
+
+cp .env.example .env
+php artisan key:generate
+
+php artisan migrate
+npm run dev
+php artisan serve
+```
 
 ## Philosophy
 
 Yuki is **not** a ready-made shop.
 
 It is a foundation:
-- opinionated where needed
-- flexible where it matters
-- designed for developers building real-world e-commerce systems
+
+-   opinionated where needed
+-   flexible where it matters
+-   designed for developers building real-world e-commerce systems
 
 ---
 
 ## License
 
 This project is open-source and licensed under the MIT license.
+
+```
+
 ```
