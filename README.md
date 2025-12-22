@@ -255,13 +255,13 @@ The API layer is designed to:
 
 ## Current Status
 
-✅ Project bootstrapped
-✅ Authentication (admin)
-✅ Catalog domain foundation
-✅ Products & variants
-✅ Multi-currency pricing
-✅ Inventory reservation & release
-✅ Order lifecycle defined
+✅ Project bootstrapped  
+✅ Authentication (admin)  
+✅ Catalog domain foundation  
+✅ Products & variants  
+✅ Multi-currency pricing  
+✅ Inventory reservation & release  
+✅ Order lifecycle defined  
 ✅ Payment handling (domain-pure)
 
 🚧 In progress:
@@ -305,7 +305,3 @@ It is a foundation:
 ## License
 
 This project is open-source and licensed under the MIT license.
-
-```
-
-```
