@@ -1,0 +1,41 @@
+<?php
+
+namespace App\Domains\Payments\Actions;
+
+use App\Domains\Inventory\Actions\ConfirmOrderInventory;
+use App\Domains\Order\Actions\MarkOrderAsPaid;
+use App\Domains\Payments\Models\Payment;
+use DomainException;
+use Illuminate\Support\Facades\DB;
+
+class HandleSuccessfulPayment
+{
+    public function __construct(
+        protected ConfirmOrderInventory $confirmOrderInventory,
+        protected MarkOrderAsPaid $markOrderAsPaid,
+    ) {}
+    public function execute(string $provider, string $providerReference): void
+    {
+        DB::transaction(function () use ($provider, $providerReference) {
+
+            $payment = Payment::where('provider', $provider)
+                ->where('provider_reference', $providerReference)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            if ($payment->isPaid()) {
+                return;
+            }
+
+            if (!$payment->isPending()) {
+                throw new DomainException('Payment is not in a payable state.');
+            }
+
+            $payment->markAsPaid();
+
+            $this->confirmOrderInventory->execute($payment->order);
+
+            $this->markOrderAsPaid->execute($payment->order);
+        });
+    }
+}

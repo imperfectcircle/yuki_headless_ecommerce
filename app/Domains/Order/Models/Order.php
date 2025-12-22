@@ -28,4 +28,24 @@ class Order extends Model
     {
         return $this->hasMany(OrderItem::class);
     }
+
+    public function canBePaid(): bool
+    {
+        return $this->status === self::STATUS_RESERVED;
+    }
+
+    public function markAsPaid(): void
+    {
+        $this->update(['status' => self::STATUS_PAID]);
+    }
+
+    public function canBeFailed(): bool
+    {
+        return $this->status === self::STATUS_RESERVED;
+    }
+
+    public function markAsFailed(): void
+    {
+        $this->update(['status' => self::STATUS_CANCELLED]);
+    }
 }
