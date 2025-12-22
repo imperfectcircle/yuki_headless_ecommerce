@@ -1,3 +1,5 @@
+<p align="center"><img src="https://raw.githubusercontent.com/imperfectcircle/yuki_headless_ecommerce/refs/heads/main/public/images/yuki_logo.webp" width="400" alt="Yuki Headless Ecommerce Logo"></p>
+
 # Headless E-commerce Backoffice (Laravel + Inertia + React)
 
 This project is a **headless e-commerce backoffice** built with **Laravel 12**, **Inertia.js** and **React**.
