@@ -14,14 +14,9 @@ class HandleFailedPayment
         protected ReleaseOrderInventory $releaseOrderInventory,
         protected MarkOrderAsFailed $markOrderAsFailed,
     ) {}
-    public function execute(string $provider, string $providerReference): void
+    public function execute(Payment $payment): void
     {
-        DB::transaction(function () use ($provider, $providerReference) {
-
-            $payment = Payment::where('provider', $provider)
-                ->where('provider_reference', $providerReference)
-                ->lockForUpdate()
-                ->firstOrFail();
+        DB::transaction(function () use ($payment) {
 
             if ($payment->isFailed()) {
                 return;

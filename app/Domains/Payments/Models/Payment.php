@@ -3,6 +3,7 @@
 namespace App\Domains\Payments\Models;
 
 use App\Domains\Order\Models\Order;
+use DomainException;
 use Illuminate\Database\Eloquent\Model;
 
 class Payment extends Model
@@ -45,11 +46,29 @@ class Payment extends Model
         return $this->status === self::STATUS_FAILED;
     }
 
+    public function canBePaid(): bool
+    {
+        return $this->isPending();
+    }
+
+    public function canBeFailed(): bool
+    {
+        return $this->isPending();
+    }
+
     public function markAsPaid(): void{
+        if (!$this->canBePaid()) {
+            throw new DomainException('Payment cannot be marked ad paid.');
+        }
+
         $this->update(['status' => self::STATUS_PAID]);
     }
 
     public function markAsFailed(): void{
+        if (!$this->canBeFailed()) {
+            throw new DomainException('Payment cannot be marked as failed.');
+        }
+        
         $this->update(['status' => self::STATUS_FAILED]);
     }
 }

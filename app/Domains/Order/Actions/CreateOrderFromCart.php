@@ -13,7 +13,7 @@ class CreateOrderFromCart
     public function execute(Cart $cart): Order
     {
         if (!$cart->isActive()) {
-            throw new DomainException('Cart cannot be checked out.');
+            throw new DomainException('Cart cannot be converted to order.');
         }
 
         return DB::transaction(function () use ($cart) {
@@ -30,7 +30,7 @@ class CreateOrderFromCart
                 $price = $variant->priceForCurrency($cart->currency);
 
                 if (!$price) {
-                    throw new DomainException("Price not available for variant {$variant->id}");
+                    throw new DomainException("Price not available for variant {$variant->id} in {$cart->currency}");
                 }
 
                 $lineTotal = $price->amount * $item->quantity;
@@ -53,12 +53,6 @@ class CreateOrderFromCart
                 'tax_total' => 0, // placeholder: calculated later
                 'shipping_total' => 0, // placeholder: calculated later
                 'grand_total' => $subtotal,
-            ]);
-
-            app(ReserveOrderInventory::class)->execute($order);
-
-            $order->update([
-                'status' => Order::STATUS_RESERVED,
             ]);
 
             $cart->markAsConverted();
