@@ -2,11 +2,13 @@
     <img src="https://raw.githubusercontent.com/imperfectcircle/yuki_headless_ecommerce/refs/heads/main/public/images/yuki_logo.webp" width="300" alt="Yuki Headless Ecommerce Logo">
 </p>
 
-# Yuki Headless E-commerce Backoffice (Laravel + Inertia + React)
+# Yuki Headless E-commerce Backoffice
 
-Yuki is a **headless, backend-driven e-commerce backoffice** built with **Laravel 12**, **Inertia.js** and **React**.
+**Laravel 12 + Inertia.js + React**
 
-Its goal is to provide a **scalable, reusable e-commerce engine** that can power multiple storefronts, while keeping a strong focus on **domain logic, data consistency and long-term maintainability**.
+Yuki is a **headless, backend-driven e-commerce backoffice** built with **Laravel**, **Inertia.js**, and **React**.
+
+It is designed as a **scalable, domain-first e-commerce engine**, capable of powering multiple storefronts while keeping **business logic, consistency, and maintainability** at the core.
 
 The storefront (B2C) is intentionally **decoupled** and can be implemented using any technology (Next.js, Nuxt, mobile apps, etc.), consuming the exposed APIs.
 
@@ -15,10 +17,10 @@ The storefront (B2C) is intentionally **decoupled** and can be implemented using
 ## Project Goals
 
 -   Headless, API-first architecture
--   Backend-driven business logic
+-   Backend-driven business rules
 -   Clear domain separation
 -   Reusable across multiple e-commerce projects
--   Easy to extend and maintain over time
+-   Long-term maintainability
 -   Admin panel built with Inertia + React
 -   Frontend-agnostic storefronts
 
@@ -30,7 +32,7 @@ The storefront (B2C) is intentionally **decoupled** and can be implemented using
 
 -   **Laravel 12**
 -   MySQL / PostgreSQL
--   REST API (future-ready for GraphQL)
+-   REST API (GraphQL-ready)
 
 ### Admin Panel
 
@@ -46,210 +48,164 @@ The storefront (B2C) is intentionally **decoupled** and can be implemented using
 
 ## Architecture Overview
 
-This project follows a **domain-oriented, backend-driven architecture**.
-
--   The **admin panel** is the only frontend included in this repository
--   The **storefront is external** and consumes APIs
--   All business rules live in the backend domains
+-   **Domains**: contain business rules and domain logic
+-   **Actions**: encapsulate business use cases
+-   **Controllers**: thin, delegate to domain actions
+-   **Storefront**: external, consumes APIs
 
 ```
 Backend (Laravel)
 ├── Domains
 │ ├── Catalog
-│ │ ├── Models (Product, ProductVariant, Attribute, AttributeOption)
-│ │ ├── Actions (GenerateProductVariants, CreateProduct)
-│ │ └── ...
 │ ├── Pricing
-│ │ ├── Models (Price, Currency)
-│ │ ├── Actions (SetVariantPrice)
-│ │ └── ...
 │ ├── Inventory
-│ │ ├── Models (Inventory)
-│ │ ├── Actions
-│ │ │ ├── ReserveInventory
-| | | |-- ReleaseInventory
-│ │ │ ├── ReserveOrderInventory
-│ │ │ ├── ConfirmOrderInventory
-│ │ │ └── ReleaseOrderInventory
-│ │ └── ...
 │ ├── Orders
-│ │ ├── Models (Order, OrderItem)
-│ │ ├── Actions (CreateOrder, MarkOrderAsPaid, MarkOrderAsFailed)
-│ │ └── ...
 │ ├── Payments
-│ │ ├── Models (Payment)
-│ │ ├── Actions (CreatePayment, HandleSuccessfulPayment, HandleFailedPayment)
-│ │ └── ...
 │ └── ...
 ├── Http
-│ ├── Controllers (Admin / API / Webhooks)
+│ ├── Controllers
+│ │ ├── Admin
+│ │ ├── Api
+│ │ └── Webhooks
 │ └── Requests
 └── ...
 ```
-
-### Explanation
-
--   **Domains**: Contains domain-specific logic grouped by business area.
--   **Models**: Eloquent models representing database entities, now organized per domain
--   **Actions**: Encapsulate all domain business logic
--   **Http**: Controllers and request validation.
-
----
 
 ## Core Concepts
 
 ### Products & Variants
 
--   A **Product** represents a conceptual item (e.g. _T-Shirt_)
--   A **ProductVariant** represents a sellable unit (e.g. _T-Shirt / Black / M_)
--   Every product **must have at least one variant**
--   Variants are the single source of truth for:
-    -   Pricing
-    -   Inventory
-    -   SKU
-
----
+-   `Product`: conceptual item (e.g., _T-Shirt_)
+-   `ProductVariant`: sellable unit (e.g., _Black / M_)
+-   Every product must have **at least one variant**
+-   Variants are the single source of truth for pricing, inventory, and SKU
 
 ### Pricing
 
--   Prices are stored as **integers** (minor units, e.g. cents)
--   Multi-currency is supported via the `Currency` model
--   Each variant can have multiple prices:
-    -   Different currencies
-    -   Validity ranges
-    -   VAT rates
--   Prices are linked to variants via a polymorphic relation
-
----
+-   Stored in **minor units** (e.g., cents)
+-   Multi-currency supported via `Currency`
+-   Multiple prices per variant, with validity ranges and VAT
 
 ### Inventory
 
--   Each `ProductVariant` has an associated inventory record
--   Inventory fields:
-    -   `quantity`: total stock
-    -   `reserved`: currently reserved stock
-    -   `backorder_allowed`: optional, configurable per variant
-
-#### Inventory Actions
-
--   `ReserveInventory`  
-    Reserves stock for a single product variant, increasing the `reserved` quantity.
-    It validates availability and backorder rules at variant level.
-
--   `ReserveOrderInventory`  
-    Orchestrates inventory reservation for all order items.
-    Ensures that either all items are successfully reserved or none are.
-
--   `ReleaseInventory`
-    Releases previously reserved stock for a single product variant,
-    decreasing the `reserved` quantity without affecting total stock.
-    This action is safe to call multiple times and will never result in negative reservations.
-
--   `ConfirmOrderInventory`  
-    Finalizes stock consumption after a successful payment.
-    Decrements both `reserved` and `quantity` and transitions the order
-    to its final paid state in a single atomic transaction.
-
--   `ReleaseOrderInventory`  
-    Releases all reserved stock for an order after payment failure,
-    cancellation, or automatic reservation timeout.
-
-All inventory actions are **transactional and idempotent**.
+-   Tracks `quantity`, `reserved`, and `backorder_allowed`
+-   Actions:
+    -   `ReserveInventory`, `ReleaseInventory`
+    -   `ReserveOrderInventory`, `ConfirmOrderInventory`, `ReleaseOrderInventory`
+-   All actions are **transactional and idempotent**
 
 ---
 
-### Orders & OrderItems
+## Orders & OrderItems
 
--   `Order` represents a customer purchase
--   `OrderItem` stores a **snapshot** of the variant at purchase time:
-    -   SKU
-    -   Name
-    -   Attributes
-    -   Unit price
-    -   Quantity
-    -   Totals
-
-Orders store monetary and customer snapshots to guarantee historical consistency.
+-   `Order` captures the purchase
+-   `OrderItem` stores **snapshot** of product variant at purchase:
+    -   SKU, Name, Attributes, Unit price, Quantity, Totals
+-   Orders maintain **historical consistency**
 
 ---
 
 ## Order Lifecycle
 
-Orders follow a **strict, explicit lifecycle**:
-
 ```
-draft
-  ↓
-reserved
-  ↓
-paid
+draft → reserved → paid
 ```
 
-### Possible transitions
+-   `draft → reserved`: inventory reserved
+-   `reserved → paid`: successful payment, inventory confirmed
+-   `reserved → cancelled`: payment failed, inventory released
 
--   `draft → reserved`
-
-    -   Triggered by `ReserveOrderInventory`
-    -   Stock is reserved but not consumed
-
--   `reserved → paid`
-
-    -   Triggered after successful payment
-    -   Inventory is confirmed
-
--   `reserved → cancelled`
-    -   Triggered on payment failure or timeout
-    -   Inventory is released
-
-There are **no implicit transitions**.
+No implicit transitions.
 
 ---
 
-## Payment Flow (Domain-Pure)
+## Payment Architecture
 
-The domain **does not depend on payment providers**.
-
-External systems (Stripe, PayPal, etc.) are handled at the infrastructure level (webhooks, APIs), then mapped to domain actions.
+-   **Provider-agnostic domain**
+-   Handles Stripe, PayPal, or future gateways at infrastructure level
+-   Webhooks map to domain actions (`HandleSuccessfulPayment` / `HandleFailedPayment`)
+-   Idempotent and transactional
 
 ```
-Payment Provider
-        ↓
-Webhook / API Controller
-        ↓
+Payment Provider (Stripe / PayPal)
+↓
+PaymentWebhookController
+↓
+PaymentProvider interface
+↓
+PaymentWebhookData (DTO)
+↓
 HandleSuccessfulPayment | HandleFailedPayment
-        ↓
+↓
 Order + Inventory domain actions
 ```
 
-This ensures:
+---
 
--   Provider-agnostic domain logic
--   Idempotent payment handling
--   Easy extension to new gateways
+### Order & Payment State Machine
+
+```mermaid
+stateDiagram-v2
+    [*] --> Draft : Cart converted
+    Draft --> Reserved : ReserveOrderInventory
+    Reserved --> Paid : HandleSuccessfulPayment
+    Reserved --> Cancelled : HandleFailedPayment / timeout
+
+    state Paid {
+        [*] --> InventoryConfirmed
+        InventoryConfirmed --> PaymentProcessed
+    }
+
+    state Cancelled {
+        [*] --> InventoryReleased
+    }
+
+    note right of Draft
+        Order is created as draft.
+        No inventory reserved yet.
+    end note
+
+    note right of Reserved
+        Inventory is reserved for all items.
+        Order waits for successful payment.
+    end note
+
+    note right of Paid
+        Payment confirmed.
+        Inventory confirmed and decremented.
+        Order is complete.
+    end note
+
+    note right of Cancelled
+        Payment failed or expired.
+        Inventory released back to stock.
+    end note
+```
+
+### How it works:
+
+-   **Draft → Reserved:** Triggered by `CreateOrderFromCart` and `ReserveOrderInventory`. Stock is only reserved.
+-   **Reserved → Paid:** Triggered by `HandleSuccessfulPayment`. Payment confirmed, inventory decremented.
+-   **Reserved → Cancelled:** Triggered by `HandleFailedPayment` or timeout. Stock released, order cancelled.
 
 ---
 
 ## Admin Panel
 
-Administrators can:
+-   Manage products, variants, prices, currencies
+-   Handle inventory and backorders
+-   View/manage orders
+-   Enable/disable payment providers via UI
 
--   Manage products and variants
--   Define prices and currencies
--   Manage inventory and backorders
--   View and manage orders
-
-The admin UI is built with **Inertia + React**, tightly integrated with backend logic.
+Built with **Inertia + React**, tightly integrated with backend domains.
 
 ---
 
 ## API Layer
 
-The API layer is designed to:
-
--   Serve external storefronts
--   Be independent from the admin panel
--   Expose normalized, validated data
--   Support multi-currency pricing and inventory operations
+-   Exposes normalized, validated data
+-   Multi-currency pricing and inventory support
+-   Independent from admin panel
 
 ---
 
@@ -257,19 +213,17 @@ The API layer is designed to:
 
 ✅ Project bootstrapped  
 ✅ Authentication (admin)  
-✅ Catalog domain foundation  
-✅ Products & variants  
-✅ Multi-currency pricing  
-✅ Inventory reservation & release  
-✅ Order lifecycle defined  
-✅ Payment handling (domain-pure)
+✅ Catalog & pricing domains  
+✅ Inventory actions  
+✅ Order lifecycle state machine  
+✅ Payment provider abstraction & webhook handling
 
 🚧 In progress:
 
 -   Shipping & fulfillment
 -   Discounts & promotions
 -   Event-driven notifications
--   Storefront integration
+-   Storefront integrations
 
 ---
 
@@ -289,6 +243,44 @@ php artisan migrate
 npm run dev
 php artisan serve
 ```
+
+## Contributing (Open-Source)
+
+Contributions from developers of all levels are welcome!
+
+**Guidelines**
+
+1. Fork the repo and create a feature branch:
+
+```
+git checkout -b feature/my-feature
+```
+
+2. Commit changes with clear messages:
+
+```
+git commit -m "Add new feature / fix bug / update docs"
+```
+
+3. Push and open a pull request
+
+**Code Style and Best Practices:**
+
+-   Follow Laravel conventions
+-   Keep controllers thin, logic in Actions
+-   Write Domain-pure, testable code
+-   All inventory/payment operations must be idempotent
+
+**Areas of Contribution:**
+
+-   Storefront API endpoints
+-   Shipping & fulfillment modules
+-   Discount & promotions
+-   UI enanchement for admin
+-   Additional payment provider integrations
+-   Test and documentation improvements
+
+**Discussions, issues, and PRs** are encourage - no idea is too small!
 
 ## Philosophy
 
