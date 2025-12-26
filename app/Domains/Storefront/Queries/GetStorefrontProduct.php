@@ -3,15 +3,11 @@
 namespace App\Domains\Storefront\Queries;
 
 use App\Domains\Catalog\Models\Product;
-use App\Domains\Storefront\DTOs\Product\StorefrontProductDetailDTO;
 use App\Domains\Storefront\Transformers\Product\ProductDetailTransformer;
 
-class GetStorefrontProduct
+final class GetStorefrontProduct
 {
-    public function __construct(
-        protected ProductDetailTransformer $transformer
-    ) {}
-    public function execute(string $slug, string $currency): StorefrontProductDetailDTO
+    public function execute(string $slug, string $currency): array
     {
         $product = Product::query()
             ->where('slug', $slug)
@@ -22,7 +18,7 @@ class GetStorefrontProduct
             ])
             ->firstOrFail();
 
-        return $this->transformer->transform(
+        return ProductDetailTransformer::transform(
             $product,
             $currency
         );

@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Swagger\Schemas;
+
 /**
  * @OA\Schema(
  *     schema="ProductVariant",
@@ -36,3 +38,4 @@
  *     )
  * )
  */
+

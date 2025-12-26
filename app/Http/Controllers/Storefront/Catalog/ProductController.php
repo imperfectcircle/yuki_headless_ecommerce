@@ -20,38 +20,29 @@ use Illuminate\Support\Facades\Request;
 class ProductController extends Controller
 {
     /**
- * @OA\Get(
- *   path="/api/storefront/v1/products",
- *   tags={"Storefront Catalog"},
- *   summary="List published products",
- *   @OA\Response(
- *     response=200,
- *     description="Paginated product list",
- *     @OA\JsonContent(
- *       type="object",
- *       @OA\Property(
- *         property="data",
- *         type="array",
- *         @OA\Items(ref="#/components/schemas/StorefrontProductListItem")
- *       ),
- *       @OA\Property(
- *         property="meta",
- *         type="object",
- *         @OA\Property(property="current_page", type="integer"),
- *         @OA\Property(property="last_page", type="integer"),
- *         @OA\Property(property="per_page", type="integer"),
- *         @OA\Property(property="total", type="integer")
- *       )
- *     )
- *   )
- * )
- */
-    public function index(ProductListItemTransformer $transformer): JsonResponse
+    * @OA\Get(
+    *   path="/api/storefront/v1/products",
+    *   tags={"Storefront Catalog"},
+    *   summary="List published products",
+    *   @OA\Parameter(
+    *     name="currency",
+    *     in="query",
+    *     required=false,
+    *     @OA\Schema(type="string", example="EUR")
+    *   ),
+    *   @OA\Response(
+    *     response=200,
+    *     description="Paginated product list"
+    *   )
+    * )
+    */
+    public function index(Request $request): JsonResponse
     {
         $currency = request()->query('currency', 'EUR');
         
         $products = Product::query()
             ->where('status', 'published')
+            ->with('variants.price')
             ->orderBy('name')
             ->paginate(12);
             
@@ -59,7 +50,7 @@ class ProductController extends Controller
         return response()->json([
             'data' => $products->getCollection()
                 ->map(fn ($product) => 
-                    $transformer->transform($product, $currency)->toArray(),
+                    ProductListItemTransformer::transform($product, $currency),
                 ),
             'meta' => [
                 'current_page' => $products->currentPage(),
