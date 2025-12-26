@@ -32,7 +32,8 @@ class ProductController extends Controller
     *   ),
     *   @OA\Response(
     *     response=200,
-    *     description="Paginated product list"
+    *     description="Paginated list of products",
+    *     @OA\JsonContent(ref="#/components/schemas/StorefrontProductIndexResponse")
     *   )
     * )
     */
@@ -64,8 +65,8 @@ class ProductController extends Controller
     /**
     * @OA\Get(
     *   path="/api/storefront/v1/products/{slug}",
-    *   summary="Get storefront product",
     *   tags={"Storefront Catalog"},
+    *   summary="Get product detail",
     *   @OA\Parameter(
     *     name="slug",
     *     in="path",
@@ -75,13 +76,19 @@ class ProductController extends Controller
     *   @OA\Parameter(
     *     name="currency",
     *     in="query",
-    *     required=true,
+    *     required=false,
     *     @OA\Schema(type="string", example="EUR")
     *   ),
     *   @OA\Response(
     *     response=200,
     *     description="Product detail",
-    *     @OA\JsonContent(ref="#/components/schemas/StorefrontProductDetail")
+    *     @OA\JsonContent(
+    *       type="object",
+    *       @OA\Property(
+    *         property="data",
+    *         ref="#/components/schemas/StorefrontProductDetail"
+    *       )
+    *     )
     *   )
     * )
     */
