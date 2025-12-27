@@ -39,8 +39,15 @@ return [
         'key' => env('STRIPE_KEY'),
         'secret' => env('STRIPE_SECRET'),
         'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
-        'success_url' => env('SUCCESS_URL'),
-        'cancel_url' => env('CANCEL_URL'),
+        'success_url' => env('STRIPE_SUCCESS_URL'),
+        'cancel_url' => env('STRIPE_CANCEL_URL'),
     ],
 
+    'paypal' => [
+        'mode' => env('PAYPAL_MODE', 'sandbox'),
+        'client_id' => env('PAYPAL_CLIENT_ID'),
+        'secret' => env('PAYPAL_SECRET'),
+        'success_url' => env('PAYPAL_SUCCESS_URL'),
+        'cancel_url' => env('PAYPAL_CANCEL_URL')
+    ],
 ];

@@ -5,10 +5,11 @@ namespace App\Domains\Cart\Actions;
 use App\Domains\Cart\Models\Cart;
 use App\Domains\Catalog\Models\ProductVariant;
 use DomainException;
+use Illuminate\Support\Facades\DB;
 
 class AddItemToCart
 {
-    public function execute(Cart $cart, ProductVariant $variant, int $quantity): void
+    public function execute(Cart $cart, int $variantId, int $quantity): void
     {
         if (!$cart->isActive()) {
             throw new DomainException('Cart is not active.');
@@ -18,18 +19,33 @@ class AddItemToCart
             throw new DomainException('Quantity must be greater than zero.');
         }
 
-        $item = $cart->items()
-            ->where('product_variant_id', $variant->id)
-            ->first();
+        DB::transaction(function () use ($cart, $variantId, $quantity){
 
-        if ($item) {
-            $item->increment('quantity', $quantity);
-            return;
-        }
+            $variant = ProductVariant::query()
+                ->with(['product', 'prices'])
+                ->findOrFail($variantId);
 
-        $cart->items()->create([
-            'product_variant_id' => $variant->id,
-            'quantity' => $quantity,
-        ]);
+            $price = $variant->priceForCurrency($cart->currency);
+
+            if (!$price) {
+                throw new DomainException('Price not available for this variant.');
+            }
+
+            $existingItem = $cart->items()
+                ->where('product_variant_id', $variant->id)
+                ->lockForUpdate()
+                ->first();
+
+            if ($existingItem) {
+                $existingItem->increment('quantity', $quantity);
+                return;
+            }
+
+            $cart->items()->create([
+                'product_variant_id' => $variant->id,
+                'unit_price' => $price->amount,
+                'quantity' => $quantity
+            ]);
+        });
     }
 }

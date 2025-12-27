@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Application;
 use App\Http\Controllers\ProfileController;
 use App\Admin\Controllers\ProductController;
+use App\Http\Controllers\Admin\PaymentProviderController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -27,6 +28,12 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware('auth')->prefix('admin')->group(function () {
     Route::resource('products', ProductController::class);
+});
+
+Route::controller(PaymentProviderController::class)->prefix('payments/providers')->group(function () {
+    Route::get('/', 'index')->name('admin.payment-providers.index');
+    Route::patch('{provider}/toggle', 'toggle')->name('admin.payment-providers.toggle');
+    Route::post('reorder', 'reorder')->name('admin.payment-providers.reorder');
 });
 
 require __DIR__.'/auth.php';

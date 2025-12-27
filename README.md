@@ -1,16 +1,16 @@
 <p align="center">
-    <img src="https://raw.githubusercontent.com/imperfectcircle/yuki_headless_ecommerce/refs/heads/main/public/images/yuki_logo.webp" width="300" alt="Yuki Headless Ecommerce Logo">
+  <img src="https://raw.githubusercontent.com/imperfectcircle/yuki_headless_ecommerce/refs/heads/main/public/images/yuki_logo.webp" width="300" alt="Yuki Headless Ecommerce Logo">
 </p>
 
 # Yuki Headless E-commerce Backoffice
 
-**Laravel 12 + Inertia.js + React**
+**Laravel 12 · Inertia.js · React**
 
-Yuki is a **headless, backend-driven e-commerce backoffice** built with **Laravel**, **Inertia.js**, and **React**.
+Yuki is a **headless, backend-driven e-commerce backoffice** designed as a **domain-first, extensible e-commerce engine**.
 
-It is designed as a **scalable, domain-first e-commerce engine**, capable of powering multiple storefronts while keeping **business logic, consistency, and maintainability** at the core.
+It focuses on **business correctness, data consistency, and long-term maintainability**, rather than quick shortcuts or tightly coupled frontend logic.
 
-The storefront (B2C) is intentionally **decoupled** and can be implemented using any technology (Next.js, Nuxt, mobile apps, etc.), consuming the exposed APIs.
+The storefront (B2C) is intentionally **decoupled** and can be implemented using any technology (Next.js, Nuxt, mobile apps, etc.) consuming the exposed APIs.
 
 ---
 
@@ -18,11 +18,12 @@ The storefront (B2C) is intentionally **decoupled** and can be implemented using
 
 -   Headless, API-first architecture
 -   Backend-driven business rules
--   Clear domain separation
+-   Clear domain boundaries
 -   Reusable across multiple e-commerce projects
 -   Long-term maintainability
 -   Admin panel built with Inertia + React
 -   Frontend-agnostic storefronts
+-   Payment provider agnostic architecture
 
 ---
 
@@ -48,10 +49,9 @@ The storefront (B2C) is intentionally **decoupled** and can be implemented using
 
 ## Architecture Overview
 
--   **Domains**: contain business rules and domain logic
--   **Actions**: encapsulate business use cases
--   **Controllers**: thin, delegate to domain actions
--   **Storefront**: external, consumes APIs
+Yuki follows a **domain-oriented architecture**.
+
+Business rules live in the backend and are never delegated to external systems or the frontend.
 
 ```
 Backend (Laravel)
@@ -59,77 +59,157 @@ Backend (Laravel)
 │ ├── Catalog
 │ ├── Pricing
 │ ├── Inventory
+│ ├── Cart
 │ ├── Orders
 │ ├── Payments
-│ └── ...
+│ │ ├── Actions
+│ │ ├── Contracts
+│ │ ├── DTOs
+│ │ ├── Models
+│ │ ├── Resolvers
+│ │ └── Stripe / PayPal
+│ ├──Pricing
+│ └── Storefront
 ├── Http
 │ ├── Controllers
 │ │ ├── Admin
-│ │ ├── Api
+│ │ ├── Storefront
 │ │ └── Webhooks
 │ └── Requests
 └── ...
 ```
 
+### Key principles
+
+-   **Domains** contain business logic
+-   **Actions** encapsulate use cases
+-   **Controllers** are thin and orchestration-only
+-   **Storefront** consumes APIs only
+-   **External services never touch domain logic**
+
+---
+
 ## Core Concepts
 
 ### Products & Variants
 
--   `Product`: conceptual item (e.g., _T-Shirt_)
--   `ProductVariant`: sellable unit (e.g., _Black / M_)
--   Every product must have **at least one variant**
--   Variants are the single source of truth for pricing, inventory, and SKU
+-   `Product` represents a conceptual item (e.g. _T-Shirt_)
+-   `ProductVariant` represents a sellable unit (e.g. _Black / M_)
+-   Every product **must have at least one variant**
+-   Variants are the single source of truth for:
+    -   Pricing
+    -   Inventory
+    -   SKU
+
+---
 
 ### Pricing
 
--   Stored in **minor units** (e.g., cents)
--   Multi-currency supported via `Currency`
--   Multiple prices per variant, with validity ranges and VAT
+-   Prices are stored in **minor units** (e.g. cents)
+-   Multi-currency supported
+-   Multiple prices per variant
+-   Validity ranges and VAT rates supported
+-   Pricing is **time-aware** and **currency-aware**
+
+---
 
 ### Inventory
 
--   Tracks `quantity`, `reserved`, and `backorder_allowed`
--   Actions:
-    -   `ReserveInventory`, `ReleaseInventory`
-    -   `ReserveOrderInventory`, `ConfirmOrderInventory`, `ReleaseOrderInventory`
--   All actions are **transactional and idempotent**
+Inventory is strictly controlled and never modified implicitly.
+
+Each variant has:
+
+-   `quantity` → total stock
+-   `reserved` → temporarily locked stock
+-   `backorder_allowed`
+
+#### Inventory Actions
+
+-   `ReserveInventory`
+-   `ReleaseInventory`
+-   `ReserveOrderInventory`
+-   `ConfirmOrderInventory`
+-   `ReleaseOrderInventory`
+
+All inventory actions are:
+
+-   **Transactional**
+-   **Idempotent**
+-   **Order-aware**
+
+---
+
+## Cart
+
+-   The cart is a first-class domain entity
+-   Identified via a **token**
+-   Fully stateless on the frontend
+-   All mutations are validated server-side
+
+Supported operations:
+
+-   Add item
+-   Update quantity
+-   Remove item
+-   Read cart with totals
 
 ---
 
 ## Orders & OrderItems
 
--   `Order` captures the purchase
--   `OrderItem` stores **snapshot** of product variant at purchase:
-    -   SKU, Name, Attributes, Unit price, Quantity, Totals
--   Orders maintain **historical consistency**
+-   `Order` represents a purchase intent
+-   `OrderItem` stores a **snapshot** of the variant at purchase time:
+    -   SKU
+    -   Name
+    -   Attributes
+    -   Unit price
+    -   Quantity
+    -   Totals
+
+This guarantees **historical consistency**, even if catalog data changes later.
 
 ---
 
 ## Order Lifecycle
 
+Orders follow a **strict and explicit lifecycle**.
+
 ```
 draft → reserved → paid
 ```
 
--   `draft → reserved`: inventory reserved
--   `reserved → paid`: successful payment, inventory confirmed
--   `reserved → cancelled`: payment failed, inventory released
+### Transitions
 
-No implicit transitions.
+-   **draft → reserved**
+
+    -   Triggered by `CreateOrderFromCart`
+    -   Inventory is reserved but not consumed
+
+-   **reserved → paid**
+
+    -   Triggered by `HandleSuccessfulPayment`
+    -   Inventory is confirmed and decremented
+
+-   **reserved → cancelled**
+    -   Triggered by `HandleFailedPayment` or timeout
+    -   Inventory is released
+
+There are **no implicit transitions**.
 
 ---
 
 ## Payment Architecture
 
--   **Provider-agnostic domain**
--   Handles Stripe, PayPal, or future gateways at infrastructure level
--   Webhooks map to domain actions (`HandleSuccessfulPayment` / `HandleFailedPayment`)
--   Idempotent and transactional
+Payments are **provider-agnostic at domain level**.
+
+External gateways are handled at infrastructure level and mapped to domain actions.
 
 ```
 Payment Provider (Stripe / PayPal)
 ↓
-PaymentWebhookController
+Webhook / API Controller
+↓
+PaymentProviderResolver
 ↓
 PaymentProvider interface
 ↓
@@ -137,7 +217,7 @@ PaymentWebhookData (DTO)
 ↓
 HandleSuccessfulPayment | HandleFailedPayment
 ↓
-Order + Inventory domain actions
+Order + Inventory actions
 ```
 
 ---
@@ -212,18 +292,23 @@ Built with **Inertia + React**, tightly integrated with backend domains.
 ## Current Status
 
 ✅ Project bootstrapped  
-✅ Authentication (admin)  
+✅ Admin authentication  
 ✅ Catalog & pricing domains  
-✅ Inventory actions  
-✅ Order lifecycle state machine  
-✅ Payment provider abstraction & webhook handling
+✅ Inventory reservation & release  
+✅ Cart domain  
+✅ Order lifecycle & state machine  
+✅ Payment provider abstraction  
+✅ Stripe integration  
+✅ Admin payment provider management
 
 🚧 In progress:
 
+-   PayPal integration
 -   Shipping & fulfillment
 -   Discounts & promotions
 -   Event-driven notifications
--   Storefront integrations
+-   Storefront API expansion
+-   Automated tests
 
 ---
 
@@ -268,17 +353,20 @@ git commit -m "Add new feature / fix bug / update docs"
 
 -   Follow Laravel conventions
 -   Keep controllers thin, logic in Actions
--   Write Domain-pure, testable code
--   All inventory/payment operations must be idempotent
+-   Place business logic in domain Actions
+-   Avoid provider-specific logic in domains
+-   Prefer explicit state transitions
+-   Ensure idempotency for inventory and payments
+-   Write readable, intention-revealing code
 
 **Areas of Contribution:**
 
 -   Storefront API endpoints
--   Shipping & fulfillment modules
--   Discount & promotions
--   UI enanchement for admin
--   Additional payment provider integrations
--   Test and documentation improvements
+-   Payment providers
+-   Shipping modules
+-   Discounts & promotions
+-   Admin UI improvements
+-   Test and documentation
 
 **Discussions, issues, and PRs** are encourage - no idea is too small!
 
