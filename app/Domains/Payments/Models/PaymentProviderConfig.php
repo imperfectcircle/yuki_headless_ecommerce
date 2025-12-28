@@ -16,5 +16,21 @@ class PaymentProviderConfig extends Model
 
     protected $casts = [
         'enabled' => 'boolean',
+        'position' => 'integer',
     ];
+
+    public function scopeEnabled($query)
+    {
+        return $query->where('enabled', true);
+    }
+
+    public function scopeOrdered($query)
+    {
+        return $query->orderBy('position');
+    }
+
+    public function toggle(): void
+    {
+        $this->update(['enabled' => !$this->enabled]);
+    }
 }

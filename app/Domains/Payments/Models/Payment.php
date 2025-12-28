@@ -11,6 +11,7 @@ class Payment extends Model
     public const STATUS_PENDING = 'pending';
     public const STATUS_PAID = 'paid';
     public const STATUS_FAILED = 'failed';
+    public const STATUS_REFUNDED = 'refunded';
 
     protected $fillable = [
         'order_id',
@@ -23,6 +24,8 @@ class Payment extends Model
     ];
 
     protected $casts = [
+        'order_id' => 'integer',
+        'amount' => 'integer',
         'payload' => 'array',
     ];
 
@@ -44,6 +47,11 @@ class Payment extends Model
     public function isFailed(): bool
     {
         return $this->status === self::STATUS_FAILED;
+    }
+
+    public function isRefunded(): bool
+    {
+        return $this->status === self::STATUS_REFUNDED;
     }
 
     public function canBePaid(): bool
@@ -70,5 +78,15 @@ class Payment extends Model
         }
         
         $this->update(['status' => self::STATUS_FAILED]);
+    }
+
+    public function scopePending($query)
+    {
+        return $query->where('status', self::STATUS_PENDING);
+    }
+
+    public function scopeByProvider($query, string $provider)
+    {
+        return $query->where('provider', $provider);
     }
 }
