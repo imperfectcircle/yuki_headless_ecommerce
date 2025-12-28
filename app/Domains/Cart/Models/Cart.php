@@ -17,6 +17,12 @@ class Cart extends Model
         'currency',
     ];
 
+    protected $casts = [
+        'token' => 'string',
+        'status' => 'string',
+        'currency' => 'string',
+    ];
+
     public function items()
     {
         return $this->hasMany(CartItem::class);
@@ -30,5 +36,10 @@ class Cart extends Model
     public function markAsConverted(): void
     {
         $this->update(['status' => self::STATUS_CONVERTED]);
+    }
+
+    public function markAsAbandoned(): void
+    {
+        $this->update(['status' => self::STATUS_ABANDONED]);
     }
 }
