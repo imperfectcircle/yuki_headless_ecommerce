@@ -23,7 +23,18 @@ class AddCartItemRequest extends FormRequest
     {
         return [
             'variant_id' => ['required', 'integer', 'exists:product_variants,id'],
-            'quantity' => ['required', 'integer', 'min:1']
+            'quantity' => ['required', 'integer', 'min:1', 'max:999']
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'variant_id.required' => 'Product variant is required.',
+            'variant_id.exists' => 'The selected product variant does not exist.',
+            'quantity.required' => 'Quantity is required.',
+            'quantity.min' => 'Quantity must be at least 1.',
+            'quantity.max' => 'Quantity cannot exceed 999.',
         ];
     }
 
