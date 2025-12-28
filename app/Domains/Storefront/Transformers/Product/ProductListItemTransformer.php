@@ -19,7 +19,9 @@ final class ProductListItemTransformer
                 'slug' => $product->slug,
                 'name' => $product->name,
                 'price_from' => $prices->min() ?? 0,
+                'price_to' => $prices->max() ?? 0,
                 'currency' => $currency,
+                'has_variants' => $product->variants->count() > 1,
             ];
     }
 }

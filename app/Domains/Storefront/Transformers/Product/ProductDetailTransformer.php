@@ -15,6 +15,7 @@ final class ProductDetailTransformer
             'slug' => $product->slug,
             'name' => $product->name,
             'description' => $product->description ?? '',
+            'backorrder_enabled' => $product->backorder_enabled,
             'variants' => $product->variants->map(
                 fn ($variant) => VariantTransformer::transform($variant, $currency)
             )->toArray(),

@@ -11,14 +11,22 @@ final class VariantTransformer
         string $currency
     ): array {
         $price = $variant->priceForCurrency($currency);
+        $inventory = $variant->inventory;
+
+        $available = 0;
+        if ($inventory) {
+            $available = max(0, $inventory->quantity - $inventory->reserved);
+        }
 
         return [
             'id' => $variant->id,
             'sku' => $variant->sku,
-            'attributes' => $variant->attributes,
+            'attributes' => $variant->attributes ?? [],
             'price' => $price->amount ?? 0,
             'currency' => $currency,
-            'available' => ($variant->inventory?->quantity > 0) > 0
+            'available' => $available,
+            'is_active' => $variant->is_active,
+            'backorder_allowed' => $variant->product->backorder_enabled,
         ];
     }
 }
