@@ -7,7 +7,17 @@ use Illuminate\Database\Eloquent\Model;
 
 class AttributeOption extends Model
 {
-    protected $fillable = ['attribute_id', 'code', 'label', 'position'];
+    protected $fillable = [
+        'attribute_id',
+        'code',
+        'label',
+        'position'
+    ];
+
+    protected $casts = [
+        'attribute_id' => 'integer',
+        'position' => 'integer',
+    ];
 
     public function attribute()
     {

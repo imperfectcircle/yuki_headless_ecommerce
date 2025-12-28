@@ -10,10 +10,17 @@ use Illuminate\Database\Eloquent\Model;
 
 class ProductVariant extends Model
 {
-    protected $fillable = ['sku', 'attributes', 'is_active'];
+    protected $fillable = [
+        'product_id',
+        'sku',
+        'attributes',
+        'is_active'
+    ];
 
     protected $casts = [
+        'product_id' => 'integer',
         'attributes' => 'array',
+        'is_active' => 'boolean'
     ];
 
     public function product()
@@ -28,12 +35,17 @@ class ProductVariant extends Model
 
     public function options()
     {
-        return $this->belongsToMany(AttributeOption::class, 'product_variant_option');
+        return $this->belongsToMany(
+            AttributeOption::class,
+            'product_variant_option',
+            'product_variant_id',
+            'attribute_option_id'
+        );
     }
 
     public function inventory()
     {
-        return $this->hasOne(Inventory::class);
+        return $this->hasOne(Inventory::class, 'product_variant_id');
     }
 
     /**
@@ -55,11 +67,43 @@ class ProductVariant extends Model
     public function priceForCurrency(string $currencyCode): ?Price
     {
         return $this->prices()
-            ->whereHas('currency', fn ($q) => 
-                $q->where('code', $currencyCode)->where('is_active', true)
-            )
+            ->where('currency', strtoupper($currencyCode))
             ->where('is_active', true)
+            ->where(function ($q) {
+                $q->whereNull('valid_from')
+                    ->orWhere('valid_from', '<=', now());
+            })
+            ->where(function ($q) {
+                $q->whereNull('valid_to')
+                    ->orWhere('valid_to', '>=', now());
+            })
             ->orderByDesc('valid_from')
             ->first();
+    }
+
+    /**
+     * Check if variant is purchasable (has active price and inventory)
+     */
+    public function isPurchasable(string $currency): bool
+    {
+        if (!$this->is_active) {
+            return false;
+        }
+
+        $price = $this->priceForCurrency($currency);
+        if (!$price) {
+            return false;
+        }
+
+        if ($this->product->backorder_enabled) {
+            return true;
+        }
+
+        $inventory = $this->inventory;
+        if (!$inventory) {
+            return false;
+        }
+
+        return ($inventory->quantity - $inventory->reserved) > 0;
     }
 }
