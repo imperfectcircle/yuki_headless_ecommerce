@@ -20,7 +20,6 @@ class UpdateCartItem
         }
 
         DB::transaction(function () use ($cart, $itemId, $quantity) {
-
             $item = $cart->items()
                 ->where('id', $itemId)
                 ->lockForUpdate()
@@ -35,8 +34,16 @@ class UpdateCartItem
                 return;
             }
 
+            $variant = $item->productVariant();
+            $price = $variant->priceForCurrency($cart->currency);
+
+            if (!$price) {
+                throw new DomainException('Price not available for this variant.');
+            }
+
             $item->update([
                 'quantity' => $quantity,
+                'unit_price' => $price->amount,
             ]);
         });
     } 

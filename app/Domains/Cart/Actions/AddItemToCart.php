@@ -28,7 +28,7 @@ class AddItemToCart
             $price = $variant->priceForCurrency($cart->currency);
 
             if (!$price) {
-                throw new DomainException('Price not available for this variant.');
+                throw new DomainException('Price not available for this variant in ' . $cart->currency);
             }
 
             $existingItem = $cart->items()
@@ -37,7 +37,10 @@ class AddItemToCart
                 ->first();
 
             if ($existingItem) {
-                $existingItem->increment('quantity', $quantity);
+                $existingItem->update([
+                    'quantity' => $existingItem->quantity + $quantity,
+                    'unit_price' => $price->amount,
+                ]);
                 return;
             }
 
