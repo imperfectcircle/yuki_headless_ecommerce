@@ -13,17 +13,26 @@ final class CartTransformer
     {
         $items = [];
         $subtotal = 0;
+        $taxTotal = 0;
 
         foreach ($cart->items as $item) {
+            $variant = $item->ProductVariant;
+            $product = $variant->product;
+            
             $lineTotal = $item->unit_price * $item->quantity;
+
+            // Calculate tax if needed (placeholder for now)
+            $lineTax = 0;
+
             $subtotal += $lineTotal;
+            $taxTotal += $lineTax;
 
             $items[] = new StorefrontCartItemDTO(
                 id: $item->id,
-                productId: $item->product_id,
-                variantId: $item->product_variant_id,
-                name: $item->product_name,
-                sku: $item->sku,
+                productId: $product->id,
+                variantId: $variant->id,
+                name: $product->name,
+                sku: $variant->sku,
                 quantity: $item->quantity,
                 unitPrice: $item->unit_price,
                 total: $lineTotal,
@@ -32,8 +41,8 @@ final class CartTransformer
 
         $totals = new StorefrontCartTotalsDTO(
             subtotal: $subtotal,
-            tax: 0,
-            grandTotal: $subtotal
+            tax: $taxTotal,
+            grandTotal: $subtotal + $taxTotal,
         );
 
         return new StorefrontCartDTO(
