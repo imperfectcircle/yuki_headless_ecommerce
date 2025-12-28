@@ -2,6 +2,7 @@
 
 namespace App\Domains\Pricing\Models;
 
+use BcMath\Number;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -10,6 +11,8 @@ use Illuminate\Support\Carbon;
 class Price extends Model
 {
     protected $fillable = [
+        'priceable_type',
+        'priceable_id',
         'currency',
         'amount',
         'vat_rate',
@@ -62,6 +65,14 @@ class Price extends Model
     }
 
     /**
+     * Scope: by currency
+     */
+    public function scopeByCurrency(Builder $query, string $currency): Builder
+    {
+        return $this->$query->where('currency', strtoupper($currency));
+    }
+
+    /**
     * Get gross amout (net + VAT)
     */
     public function grossAmount(): int
@@ -73,5 +84,48 @@ class Price extends Model
         return (int) round(
             $this->amount * (1 + $this->vat_rate / 100)
         );
+    }
+
+    /**
+     * Get VAT amount
+     */
+    public function vatAmount(): int
+    {
+        if ($this->vat_rate <= 0) {
+            return 0;
+        }
+
+        return $this->grossAmount() - $this->amount;
+    }
+
+    /**
+     * Format amount with currency symbol
+     */
+    public function formatted(): string
+    {
+        $value = number_format($this->amount / 100, 2);
+        return "{$this->currency} {$value}";
+    }
+
+    /**
+     * Check if price is currently valid
+     */
+    public function isCurrentlyValid(): bool
+    {
+        if (!$this->is_active) {
+            return false;
+        }
+
+        $now = now();
+
+        if ($this->valid_from && $this->valid_from->isFuture()) {
+            return false;
+        }
+
+        if ($this->valid_to && $this->valid_to->isPast()) {
+            return false;
+        }
+
+        return true;
     }
 }
