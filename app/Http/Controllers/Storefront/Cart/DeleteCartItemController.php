@@ -38,17 +38,18 @@ class DeleteCartItemController extends Controller
             ->with('items')
             ->firstOrFail();
 
-        $item = $cart->items()
-            ->firstWhere('id', $itemId);
+        $item = $cart->items()->where('id', $itemId)->first();
 
         if (!$item) {
-            abort(404);
+            return response()->json([
+                'message' => 'Cart item not found'
+            ], 404);
         }
 
         $action->execute($cart, $item);
 
-        return response()->json(
-            $getCart->execute($cart->token)
-        );
+        return response()->json([
+            'data' => $getCart->execute($cart->token)->toArray()
+        ]);
     }
 }

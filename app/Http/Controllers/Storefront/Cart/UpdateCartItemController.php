@@ -56,8 +56,8 @@ class UpdateCartItemController extends Controller
             quantity: (int) $request->input('quantity')
         );
 
-        return response()->json(
-            $getCart->execute($cart->token)
-        );
+        return response()->json([
+            'data' => $getCart->execute($cart->token)->toArray()
+        ]);
     }
 }
