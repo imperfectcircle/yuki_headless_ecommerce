@@ -3,6 +3,7 @@
 namespace App\Domains\Order\Actions;
 
 use App\Domains\Inventory\Actions\ReserveOrderInventory;
+use App\Domains\Order\Events\OrderReserved;
 use App\Domains\Order\Models\Order;
 use DomainException;
 use Illuminate\Support\Facades\DB;
@@ -58,7 +59,12 @@ class ReserveOrder
 
             $order->update([
                 'status' => Order::STATUS_RESERVED,
+                'reserved_until' => now()->addMinutes(
+                    config('orders.reservation_timeout', 15)
+                ),
             ]);
+
+            OrderReserved::dispatch($order);
 
             return $order;
         });

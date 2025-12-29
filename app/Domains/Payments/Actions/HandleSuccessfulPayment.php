@@ -4,6 +4,8 @@ namespace App\Domains\Payments\Actions;
 
 use App\Domains\Inventory\Actions\ConfirmOrderInventory;
 use App\Domains\Order\Actions\MarkOrderAsPaid;
+use App\Domains\Order\Events\OrderPaid;
+use App\Domains\Payments\Events\PaymentSuccessful;
 use App\Domains\Payments\Models\Payment;
 use DomainException;
 use Illuminate\Support\Facades\DB;
@@ -28,9 +30,12 @@ class HandleSuccessfulPayment
 
             $payment->markAsPaid();
 
-            $this->confirmOrderInventory->execute($payment->order);
+            PaymentSuccessful::dispatch($payment);
 
+            $this->confirmOrderInventory->execute($payment->order);
             $this->markOrderAsPaid->execute($payment->order);
+
+            OrderPaid::dispatch($payment->order);
         });
     }
 }

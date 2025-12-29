@@ -3,6 +3,8 @@
 namespace App\Domains\Order\Actions;
 
 use App\Domains\Inventory\Actions\ReleaseOrderInventory;
+use App\Domains\Order\Events\OrderCancelled;
+use App\Domains\Order\Events\OrderReservationExpired;
 use App\Domains\Order\Models\Order;
 use Illuminate\Support\Facades\DB;
 
@@ -14,8 +16,7 @@ class ExpireReservedOrders
 
     public function execute(): void
     {
-        Order::where('status', Order::STATUS_RESERVED)
-            ->where('reserved_until', '<', now())
+        Order::expiredReservations()
             ->chunkById(50, function ($orders) {
                 foreach ($orders as $order) {
                     DB::transaction(function () use ($order) {
@@ -25,6 +26,9 @@ class ExpireReservedOrders
                             'status' => Order::STATUS_CANCELLED,
                             'reserved_until' => null,
                         ]);
+
+                        OrderReservationExpired::dispatch($order);
+                        OrderCancelled::dispatch($order);
                     });
                 }
             });

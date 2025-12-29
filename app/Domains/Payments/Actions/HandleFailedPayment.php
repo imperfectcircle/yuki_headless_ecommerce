@@ -4,6 +4,8 @@ namespace App\Domains\Payments\Actions;
 
 use App\Domains\Inventory\Actions\ReleaseOrderInventory;
 use App\Domains\Order\Actions\MarkOrderAsFailed;
+use App\Domains\Order\Events\OrderCancelled;
+use App\Domains\Payments\Events\PaymentFailed;
 use App\Domains\Payments\Models\Payment;
 use DomainException;
 use Illuminate\Support\Facades\DB;
@@ -27,9 +29,12 @@ class HandleFailedPayment
 
             $payment->markAsFailed();
 
-            $this->releaseOrderInventory->execute($payment->order);
+            PaymentFailed::dispatch($payment);
 
+            $this->releaseOrderInventory->execute($payment->order);
             $this->markOrderAsFailed->execute($payment->order);
+
+            OrderCancelled::dispatch($payment->order);
         });
     }
 }

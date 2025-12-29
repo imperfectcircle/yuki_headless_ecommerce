@@ -3,6 +3,7 @@
 namespace App\Domains\Payments\Actions;
 
 use App\Domains\Order\Models\Order;
+use App\Domains\Payments\Events\PaymentCreated;
 use App\Domains\Payments\Models\Payment;
 use DomainException;
 use Illuminate\Support\Facades\DB;
@@ -26,12 +27,16 @@ class CreatePaymentFromOrder
                 return $existingPayment;
             }
 
-            return $payment = Payment::create([
+            $payment = Payment::create([
                 'order_id' => $order->id,
                 'amount' => $order->grand_total,
                 'currency' => $order->currency,
                 'status' => Payment::STATUS_PENDING,
             ]);
+
+            PaymentCreated::dispatch($payment);
+
+            return $payment;
         });
     }
 }
