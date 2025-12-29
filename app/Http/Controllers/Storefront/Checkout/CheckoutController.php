@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Storefront\Checkout;
 
 use App\Domains\Cart\Models\Cart;
 use App\Domains\Order\Actions\CreateOrderFromCart;
+use App\Domains\Order\Actions\ReserveOrder;
 use App\Domains\Payments\Actions\CreatePaymentFromOrder;
 use App\Domains\Payments\Contracts\PaymentProvider;
 use App\Domains\Payments\Resolvers\PaymentProviderResolver;
@@ -24,10 +25,9 @@ use Illuminate\Http\Request;
  *     @OA\Schema(type="string")
  *   ),
  *   @OA\RequestBody(
- *     required=true,
+ *     required=false,
  *     @OA\JsonContent(
- *       required={"payment_provider"},
- *       @OA\Property(property="payment_provider", type="string", example="stripe")
+ *       @OA\Property(property="provider", type="string", example="stripe")
  *     )
  *   ),
  *   @OA\Response(
@@ -41,22 +41,35 @@ class CheckoutController extends Controller
     public function __invoke(
         Request $request,
         CreateOrderFromCart $createOrderFromCart,
+        ReserveOrder $reserveOrder,
         CreatePaymentFromOrder $createPaymentFromOrder,
         PaymentProviderResolver $resolver
     ): JsonResponse
     {
-        $cart = Cart::where('token', $request->header('X-Cart-Token'))
+    $validated = $request->validate([
+        'provider' => ['nullable', 'string', 'in:stripe,paypal'],
+    ]);
+
+    $cart = Cart::where('token', $request->header('X-Cart-Token'))
+        ->with('items.productVariant.product')
         ->firstOrFail();
 
     $order = $createOrderFromCart->execute($cart);
+    $order = $reserveOrder->execute($order);
+
     $payment = $createPaymentFromOrder->execute($order);
 
-    $providerCode = $request->input('provider'); // opzionale
+    $providerCode = $validated['provider'] ?? null;
     $provider = $providerCode
         ? $resolver->resolve($providerCode)
         : $resolver->default();
 
     $intent = $provider->createPayment($order);
+
+    $payment->update([
+        'provider' => $intent->provider,
+        'provider_reference' => $intent->providerReference,
+    ]);
 
     return response()->json([
         'order_id' => $order->id,
