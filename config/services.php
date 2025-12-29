@@ -35,19 +35,31 @@ return [
         ],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Payment Provider: Stripe
+    |--------------------------------------------------------------------------
+    */
+
     'stripe' => [
         'key' => env('STRIPE_KEY'),
         'secret' => env('STRIPE_SECRET'),
         'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
-        'success_url' => env('STRIPE_SUCCESS_URL'),
-        'cancel_url' => env('STRIPE_CANCEL_URL'),
+        'success_url' => env('STRIPE_SUCCESS_URL', env('APP_URL') . '/checkout/success'),
+        'cancel_url' => env('STRIPE_CANCEL_URL', env('APP_URL') . '/checkout/cancel'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Payment Provider: PayPal
+    |--------------------------------------------------------------------------
+    */
+
     'paypal' => [
-        'mode' => env('PAYPAL_MODE', 'sandbox'),
+        'mode' => env('PAYPAL_MODE', 'sandbox'), // 'sandbox' or 'live'
         'client_id' => env('PAYPAL_CLIENT_ID'),
         'secret' => env('PAYPAL_SECRET'),
-        'success_url' => env('PAYPAL_SUCCESS_URL'),
-        'cancel_url' => env('PAYPAL_CANCEL_URL')
+        'success_url' => env('PAYPAL_SUCCESS_URL', env('APP_URL') . '/checkout/success'),
+        'cancel_url' => env('PAYPAL_CANCEL_URL', env('APP_URL') . '/checkout/cancel'),
     ],
 ];
