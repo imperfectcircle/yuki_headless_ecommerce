@@ -32,7 +32,7 @@ class CreateCartController extends Controller
         CreateCart $action
     ): JsonResponse 
     {
-        $validated = $request->validated([
+        $validated = $request->validate([
             'currency' => ['required', 'string', 'size:3', 'in:EUR,USD,GBP'],
         ]);
 
