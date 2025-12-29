@@ -69,7 +69,7 @@ class Price extends Model
      */
     public function scopeByCurrency(Builder $query, string $currency): Builder
     {
-        return $this->$query->where('currency', strtoupper($currency));
+        return $query->where('currency', strtoupper($currency));
     }
 
     /**

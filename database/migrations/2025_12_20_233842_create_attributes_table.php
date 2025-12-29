@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('code')->unique(); //color, size
             $table->string('name');
             $table->string('type')->default('select');
-            $table->boolean('is_variant')->default('true');
+            $table->boolean('is_variant')->default(true);
             $table->timestamps();
         });
     }
