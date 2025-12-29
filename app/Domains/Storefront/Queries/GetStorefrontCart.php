@@ -16,7 +16,7 @@ class GetStorefrontCart
     {
         $cart = Cart::query()
             ->where('token', $token)
-            ->with('items')
+            ->with(['items.productVariant.product'])
             ->firstOrFail();
 
         return $this->transformer->transform($cart);
