@@ -124,17 +124,15 @@ class CheckoutController extends Controller
         $order = $createOrderFromCart->execute($cart, $checkoutData);
         $order = $reserveOrder->execute($order);
 
-        $payment = $createPaymentFromOrder->execute($order);
-
-        $providerCode = $checkoutData->paymentProvider;
-        $provider = $providerCode
-            ? $resolver->resolve($providerCode)
+        $provider = $checkoutData->paymentProvider
+            ? $resolver->resolve($checkoutData->paymentProvider)
             : $resolver->default();
+
+        $payment = $createPaymentFromOrder->execute($order, $provider->code());
 
         $intent = $provider->createPayment($order);
 
         $payment->update([
-            'provider' => $intent->provider,
             'provider_reference' => $intent->providerReference,
         ]);
 

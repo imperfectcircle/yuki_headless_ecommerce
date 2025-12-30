@@ -10,25 +10,28 @@ use Illuminate\Support\Facades\DB;
 
 class CreatePaymentFromOrder
 {
-    public function execute(Order $order): Payment
+    public function execute(Order $order, string $provider): Payment
     {
         if (!$order->canBePaid()) {
             throw new DomainException('Order cannot be paid in its current state.');
         }
 
-        return DB::transaction(function () use ($order) {
+        return DB::transaction(function () use ($order, $provider) {
+            $order->lockForUpdate();
             
             // idempotency: avoid duplicate pending payments
-            $existingPayment = Payment::where('order_id', $order->id)
+            $payment = Payment::where('order_id', $order->id)
+                ->where('provider', $provider)
                 ->where('status', Payment::STATUS_PENDING)
                 ->first();
 
-            if ($existingPayment) {
-                return $existingPayment;
+            if ($payment) {
+                return $payment;
             }
 
             $payment = Payment::create([
                 'order_id' => $order->id,
+                'provider' => $provider,
                 'amount' => $order->grand_total,
                 'currency' => $order->currency,
                 'status' => Payment::STATUS_PENDING,

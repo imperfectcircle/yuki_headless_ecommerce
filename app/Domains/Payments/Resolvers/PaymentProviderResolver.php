@@ -28,6 +28,10 @@ final class PaymentProviderResolver
             );
         }
 
+        if (!isset($this->providers[$provider])) {
+            throw new InvalidArgumentException("Unknown payment provider [{$provider}].");
+        }
+
         return app($this->providers[$provider]);
     }
 

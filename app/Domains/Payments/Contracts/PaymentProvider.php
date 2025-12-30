@@ -17,4 +17,6 @@ interface PaymentProvider
     * Verify and parse an incoming webhook payload
     */
     public function parseWebhook(string $payload, array $headers): PaymentWebhookData;
+
+    public function code(): string;
 }

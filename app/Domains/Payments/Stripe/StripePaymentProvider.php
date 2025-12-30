@@ -9,11 +9,16 @@ use App\Domains\Payments\DTOs\PaymentWebhookData;
 use Stripe\StripeClient;
 use Stripe\Webhook;
 
-class StripePaymentProvider implements PaymentProvider
+final class StripePaymentProvider implements PaymentProvider
 {
     public function __construct(
         protected StripeClient $stripe
     ) {}
+
+    public function code(): string
+    {
+        return 'stripe';
+    }
 
     public function createPayment(Order $order): PaymentIntentData
     {
@@ -37,7 +42,7 @@ class StripePaymentProvider implements PaymentProvider
         ]);
 
         return new PaymentIntentData(
-            provider: 'stripe',
+            provider: $this->code(),
             providerReference: $session->id,
             redirectUrl: $session->url,
             rawPayload: $session->toArray(),
@@ -54,13 +59,13 @@ class StripePaymentProvider implements PaymentProvider
 
         return match ($event->type) {
             'checkout.session.completed' => new PaymentWebhookData(
-                provider: 'stripe',
+                provider: $this->code(),
                 providerReference: $event->data->object->id,
                 eventType: 'paid',
                 rawPayload: $event->toArray(),
             ),
             default => new PaymentWebhookData(
-                provider: 'stripe',
+                provider: $this->code(),
                 providerReference: $event->data->object->id ?? '',
                 eventType: 'unknown',
                 rawPayload: $event->toArray(),

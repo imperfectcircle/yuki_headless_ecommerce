@@ -11,7 +11,7 @@ return [
     | the order will be cancelled and inventory released.
     |
     */
-    'reservation_timeout' => env('ORDER_RESERVATION_TIMEOUT', 15),
+    'reservation_timeout' => (int) env('ORDER_RESERVATION_TIMEOUT', 15),
 
     /*
     |--------------------------------------------------------------------------

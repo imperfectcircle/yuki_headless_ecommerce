@@ -3,7 +3,6 @@
 namespace App\Domains\Cart\Actions;
 
 use App\Domains\Cart\Models\Cart;
-use App\Domains\Cart\Models\CartItem;
 use DomainException;
 use Illuminate\Support\Facades\DB;
 
@@ -34,7 +33,7 @@ class UpdateCartItem
                 return;
             }
 
-            $variant = $item->productVariant();
+            $variant = $item->productVariant;
             $price = $variant->priceForCurrency($cart->currency);
 
             if (!$price) {

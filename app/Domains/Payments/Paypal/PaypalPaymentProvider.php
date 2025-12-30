@@ -9,11 +9,16 @@ use App\Domains\Payments\DTOs\PaymentWebhookData;
 use PayPalCheckoutSdk\Core\PayPalHttpClient;
 use PayPalCheckoutSdk\Orders\OrdersCreateRequest;
 
-class PaypalPaymentProvider implements PaymentProvider
+final class PaypalPaymentProvider implements PaymentProvider
 {
     public function __construct(
         protected PayPalHttpClient $client
     ) {}
+
+    public function code(): string
+    {
+        return 'paypal';
+    }
 
     public function createPayment(Order $order): PaymentIntentData
     {
@@ -42,7 +47,7 @@ class PaypalPaymentProvider implements PaymentProvider
             ->href;
 
         return new PaymentIntentData(
-            provider: 'paypal',
+            provider: $this->code(),
             providerReference: $response->result->id,
             redirectUrl: $approvalLink,
             rawPayload: json_decode(json_encode($response->result), true),
@@ -59,20 +64,20 @@ class PaypalPaymentProvider implements PaymentProvider
         return match ($data['event_type'] ?? null) {
             'CHECKOUT.ORDER.APPROVED',
             'PAYMENT.CAPTURE.COMPLETED' => new PaymentWebhookData(
-                provider: 'paypal',
+                provider: $this->code(),
                 providerReference: $data['resource']['id'] ?? '',
                 eventType: 'paid',
                 rawPayload: $data,
             ),
             'PAYMENT.CAPTURE.DENIED',
             'PAYMENT.CAPTURE.REFUNDED' => new PaymentWebhookData(
-                provider: 'paypal',
+                provider: $this->code(),
                 providerReference: $data['resource']['id'] ?? '',
                 eventType: 'failed',
                 rawPayload: $data,
             ),
             default => new PaymentWebhookData(
-                provider: 'paypal',
+                provider: $this->code(),
                 providerReference: $data['resource']['id'] ?? '',
                 eventType: 'unknown',
                 rawPayload: $data,
