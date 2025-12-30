@@ -24,7 +24,7 @@ return new class extends Migration
             $table->string('postal_code');
             $table->string('country', 2);
             $table->string('phone')->nullable();
-            $table->boolean('is_default')->default('false');
+            $table->boolean('is_default')->default(false);
             $table->timestamps();
 
             $table->index(['customer_profile_id', 'type']);
