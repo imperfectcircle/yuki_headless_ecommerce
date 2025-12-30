@@ -11,7 +11,7 @@ final readonly class CheckoutRequestDTO
         public ?string $phone,
         public ShippingAddressDTO $shippingAddress,
         public BillingAddressDTO $billingAddress,
-        public ?string $PaymentProvider = null,
+        public ?string $paymentProvider = null,
         public ?int $customerProfileId = null,
     ) {}
 
