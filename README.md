@@ -684,7 +684,7 @@ This project is open-source and licensed under the MIT license.
 
 ## Credits
 
-Built w/ 🈯 By Yuki dad
+Built w/ 🈯 By Yuki's dad
 
 Contribution from the community are what make open source amazing. Tank You to everyone who wants to contributes!
 
