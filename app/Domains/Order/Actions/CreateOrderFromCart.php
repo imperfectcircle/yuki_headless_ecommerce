@@ -3,15 +3,15 @@
 namespace App\Domains\Order\Actions;
 
 use App\Domains\Cart\Models\Cart;
-use App\Domains\Inventory\Actions\ReserveOrderInventory;
 use App\Domains\Order\Events\OrderCreated;
 use App\Domains\Order\Models\Order;
+use App\Domains\Storefront\DTOs\Checkout\CheckoutRequestDTO;
 use DomainException;
 use Illuminate\Support\Facades\DB;
 
 class CreateOrderFromCart
 {
-    public function execute(Cart $cart): Order
+    public function execute(Cart $cart, CheckoutRequestDTO $checkoutData): Order
     {
         if (!$cart->isActive()) {
             throw new DomainException('Cart cannot be converted to order.');
@@ -21,7 +21,7 @@ class CreateOrderFromCart
             throw new DomainException('Cannot create order from empty cart.');
         }
 
-        return DB::transaction(function () use ($cart) {
+        return DB::transaction(function () use ($cart, $checkoutData) {
             $order = Order::create([
                 'number' => $this->generateOrderNumber(),
                 'status' => Order::STATUS_DRAFT,
@@ -30,13 +30,22 @@ class CreateOrderFromCart
                 'tax_total' => 0,
                 'shipping_total' => 0,
                 'grand_total' => 0,
+
+                'customer_profile_id' => $checkoutData->customerProfileId,
+                'customer_email' => $checkoutData->email,
+                'customer_full_name' => $checkoutData->getFullName(),
+                'customer_phone' => $checkoutData->phone,
+
+                'shipping_address' => $checkoutData->shippingAddress->toArray(),
+                'billing_address' => $checkoutData->billingAddress->toArray(),
+
+                'guest_checkout' => $checkoutData->isGuest(),
             ]);
 
             $subtotal = 0;
 
             foreach ($cart->items as $item) {
                 $variant = $item->productVariant;
-
                 $price = $variant->priceForCurrency($cart->currency);
 
                 if (!$price) {
