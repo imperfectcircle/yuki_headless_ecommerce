@@ -12,6 +12,10 @@ class Order extends Model
     public const STATUS_RESERVED = 'reserved';
     public const STATUS_PAID = 'paid';
     public const STATUS_CANCELLED = 'cancelled';
+    public const STATUS_PROCESSING = 'processing';
+    public const STATUS_FULFILLED = 'fulfilled';
+    public const STATUS_SHIPPED = 'shipped';
+    public const STATUS_DELIVERED = 'delivered';
 
     protected $fillable = [
         'number',

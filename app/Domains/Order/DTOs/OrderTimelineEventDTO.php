@@ -10,7 +10,7 @@ final readonly class OrderTimelineEventDTO
         public string $message,
         public ?string $userName,
         public ?array $metadata,
-        public string $cratedAt,
+        public string $createdAt,
     ) {}
 
     public function toArray(): array
@@ -21,7 +21,7 @@ final readonly class OrderTimelineEventDTO
             'message' => $this->message,
             'user' => $this->userName,
             'metadata' => $this->metadata,
-            'created_at' => $this->cratedAt,
+            'created_at' => $this->createdAt,
         ];
     }
 }
