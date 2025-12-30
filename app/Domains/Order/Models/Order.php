@@ -2,6 +2,7 @@
 
 namespace App\Domains\Order\Models;
 
+use App\Domains\Customer\Models\CustomerProfile;
 use App\Domains\Order\Models\OrderItem;
 use Illuminate\Database\Eloquent\Model;
 
@@ -22,8 +23,13 @@ class Order extends Model
         'tax_total',
         'shipping_total',
         'grand_total',
+        'customer_profile_id',
         'customer_email',
-        'customer_name',
+        'customer_full_name',
+        'customer_phone',
+        'shipping_address',
+        'billing_address',
+        'guest_checkout',
         'reserved_until'
     ];
 
@@ -32,12 +38,30 @@ class Order extends Model
         'tax_total' => 'integer',
         'shipping_total' => 'integer',
         'grand_total' => 'integer',
+        'shipping_address' => 'array',
+        'billing_address' => 'array',
+        'guest_checkout' => 'boolean',
         'reserved_until' => 'datetime',
     ];
 
     public function items()
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    public function customerProfile()
+    {
+        return $this->belongsTo(CustomerProfile::class);
+    }
+
+    public function isGuest(): bool
+    {
+        return $this->guest_checkout === true;
+    }
+
+    public function hasCustomerProfile(): bool
+    {
+        return !is_null($this->customer_profile_id);
     }
 
     public function canBePaid(): bool
@@ -94,5 +118,16 @@ class Order extends Model
     {
         return $query->where('status', self::STATUS_RESERVED)
             ->where('reserved_until', '<', now());
+    }
+
+    public function scopeGuest($query)
+    {
+        return $query->where('guest_checkout', true);
+    }
+
+    public function scopeRegistered($query)
+    {
+        return $query->where('guest_checkout', false)
+            ->whereNotNull('customer_profile_id');
     }
 }
