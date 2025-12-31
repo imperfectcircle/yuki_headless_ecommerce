@@ -4,13 +4,21 @@ namespace App\Providers;
 
 use App\Domains\Order\Events\OrderCancelled;
 use App\Domains\Order\Events\OrderCreated;
+use App\Domains\Order\Events\OrderDelivered;
+use App\Domains\Order\Events\OrderFulfilled;
 use App\Domains\Order\Events\OrderPaid;
+use App\Domains\Order\Events\OrderProcessingStarted;
+use App\Domains\Order\Events\OrderRefunded;
 use App\Domains\Order\Events\OrderReservationExpired;
 use App\Domains\Order\Events\OrderReserved;
+use App\Domains\Order\Events\OrderShipped;
+use App\Domains\Order\Events\OrderStatusChanged;
 use App\Domains\Payments\Events\PaymentCreated;
 use App\Domains\Payments\Events\PaymentFailed;
 use App\Domains\Payments\Events\PaymentSuccessful;
 use App\Listeners\Order\SendOrderConfirmationEmail;
+use App\Listeners\Order\SendOrderShippedEmail;
+use App\Listeners\Order\NotifyAdminOfNewOrder;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
 class EventServiceProvider extends ServiceProvider
@@ -23,8 +31,7 @@ class EventServiceProvider extends ServiceProvider
     protected $listen = [
         // Order Events
         OrderCreated::class => [
-            // Add listeners here if needed
-            // e.g., NotifyAdminOfNewOrder::class
+            NotifyAdminOfNewOrder::class,
         ],
 
         OrderReserved::class => [
@@ -40,6 +47,22 @@ class EventServiceProvider extends ServiceProvider
             // - TrackConversionInAnalytics::class
         ],
 
+        OrderProcessingStarted::class => [
+            // Add listeners here if needed
+        ],
+
+        OrderFulfilled::class => [
+            // Add listeners here if needed
+        ],
+
+        OrderShipped::class => [
+            SendOrderShippedEmail::class, // You can create this listener
+        ],
+
+        OrderDelivered::class => [
+            // Add listeners here if needed
+        ],
+
         OrderCancelled::class => [
             // Add listeners here if needed
             // e.g., NotifyCustomerOfCancellation::class
@@ -50,22 +73,19 @@ class EventServiceProvider extends ServiceProvider
             // e.g., SendAbandonedCartReminder::class
         ],
 
+        OrderRefunded::class => [
+            // Add listeners here if needed
+        ],
+
+        OrderStatusChanged::class => [
+            // Generic listener for all status changes
+        ],
+
+
         // Payment Events
-        PaymentCreated::class => [
-            // Add listeners here if needed
-        ],
-
-        PaymentSuccessful::class => [
-            // Add listeners here if needed
-            // e.g., LogPaymentToAccounting::class
-            // e.g., SendPaymentReceiptToCustomer::class
-        ],
-
-        PaymentFailed::class => [
-            // Add listeners here if needed
-            // e.g., NotifyAdminOfFailedPayment::class
-            // e.g., SendPaymentFailureNotification::class
-        ],
+        PaymentCreated::class => [],
+        PaymentSuccessful::class => [],
+        PaymentFailed::class => [],
     ];
 
     /**
