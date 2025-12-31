@@ -13,7 +13,7 @@ final readonly class OrderListItemDto
         public int $grandTotal,
         public string $currency,
         public int $itemsCount,
-        public string $cratedAt,
+        public string $createdAt,
         public ?string $reservedUntil = null,
     ) {}
 
@@ -33,7 +33,7 @@ final readonly class OrderListItemDto
                 'formatted' => $this->formatAmount()
             ],
             'items_count' => $this->itemsCount,
-            'created_at' => $this->cratedAt,
+            'created_at' => $this->createdAt,
             'reserved_until' => $this->reservedUntil,
         ];
     }
