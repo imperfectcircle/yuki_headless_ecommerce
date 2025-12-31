@@ -48,7 +48,7 @@ class OrderController extends Controller
 
         $data = [
             'orders' => [
-                'data' => OrderListTransformer::transformCollection($orders->items()),
+                'data' => OrderListTransformer::transformCollection($orders->getCollection()),
                 'meta' => [
                     'current_page' => $orders->currentPage(),
                     'last_page' => $orders->lastPage(),
