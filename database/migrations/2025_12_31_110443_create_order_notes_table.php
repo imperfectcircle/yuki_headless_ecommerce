@@ -19,7 +19,7 @@ return new class extends Migration
             $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
 
-            $table->index(['order_id', 'crated_at']);
+            $table->index(['order_id', 'created_at']);
         });
     }
 
