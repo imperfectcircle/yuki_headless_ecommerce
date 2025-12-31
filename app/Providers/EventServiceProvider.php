@@ -19,6 +19,7 @@ use App\Domains\Payments\Events\PaymentSuccessful;
 use App\Listeners\Order\SendOrderConfirmationEmail;
 use App\Listeners\Order\SendOrderShippedEmail;
 use App\Listeners\Order\NotifyAdminOfNewOrder;
+use App\Listeners\Order\SendOrderCancelledEmail;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
 class EventServiceProvider extends ServiceProvider
@@ -56,7 +57,7 @@ class EventServiceProvider extends ServiceProvider
         ],
 
         OrderShipped::class => [
-            SendOrderShippedEmail::class, // You can create this listener
+            SendOrderShippedEmail::class, 
         ],
 
         OrderDelivered::class => [
@@ -64,6 +65,7 @@ class EventServiceProvider extends ServiceProvider
         ],
 
         OrderCancelled::class => [
+            SendOrderCancelledEmail::class,
             // Add listeners here if needed
             // e.g., NotifyCustomerOfCancellation::class
         ],
