@@ -65,7 +65,7 @@ class OrderDetailTransformer
 
         if ($order->relationLoaded('statusHistory')) {
             foreach ($order->statusHistory as $history) {
-                $vents[] = new OrderTimelineEventDTO(
+                $events[] = new OrderTimelineEventDTO(
                     type: 'status_change',
                     status: $history->to_status,
                     message: self::getStatusChangeMessage($history->from_status, $history->to_status),

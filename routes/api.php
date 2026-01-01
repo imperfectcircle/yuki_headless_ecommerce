@@ -78,7 +78,7 @@ Route::prefix('storefront/v1')
             Route::get('/', [OrderController::class, 'index'])->name('index');
             
             // Get order by ID (authenticated only)
-            Route::get('/{id}', [OrderController::class, 'show'])->name('show');
+            Route::get('/{id}', [OrderController::class, 'show'])->name('show')->middleware(['auth:sanctum']);
             
             // Get order by number (guest with email)
             Route::get('/lookup/{orderNumber}', [OrderController::class, 'showByNumber'])->name('show-by-number');

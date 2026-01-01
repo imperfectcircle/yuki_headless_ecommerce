@@ -53,7 +53,7 @@ final readonly class OrderDetailDto
                 'profile_id' => $this->customerProfileId,
                 'is_guest' => $this->guestCheckout,
             ],
-            'addressed' => [
+            'addresses' => [
                 'shipping' => $this->shippingAddress,
                 'billing' => $this->billingAddress,
             ],
