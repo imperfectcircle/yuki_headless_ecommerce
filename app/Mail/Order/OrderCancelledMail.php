@@ -17,7 +17,7 @@ class OrderCancelledMail extends Mailable
             ->subject(__('mail.order_cancelled_subject', [
                 'number' => $this->order->number,
             ]))
-            ->markdown('emails.order.cancelled', [
+            ->markdown('emails.orders.cancelled', [
                 'order' => $this->order,
             ]);
     }

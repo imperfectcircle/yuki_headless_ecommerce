@@ -32,7 +32,7 @@ class CancelOrder
             }
 
             // Update order status
-            $order->markAsCancelled->execute($reason, $userId);
+            $order->markAsCancelled($reason, $userId);
 
             // Clear reservation timeout
             if ($order->reserved_until) {

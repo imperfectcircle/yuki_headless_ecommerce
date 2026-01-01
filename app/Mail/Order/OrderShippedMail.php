@@ -23,7 +23,7 @@ class OrderShippedMail extends Mailable
             ->subject(__('mail.order_shipped_subject', [
                 'number' => $this->order->number,
             ]))
-            ->markdown('emails.order.shipped', [
+            ->markdown('emails.orders.shipped', [
                 'order' => $this->order,
                 'trackingNumber' => $this->trackingNumber,
                 'carrier' => $this->carrier,

@@ -2,7 +2,6 @@
 
 namespace App\Domains\Order\Actions;
 
-use App\Domains\Inventory\Actions\RestockInventory;
 use App\Domains\Order\Events\OrderRefunded;
 use App\Domains\Order\Models\Order;
 use App\Domains\Payments\Models\Payment;

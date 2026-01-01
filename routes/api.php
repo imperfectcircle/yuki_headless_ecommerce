@@ -7,6 +7,7 @@ use App\Http\Controllers\Storefront\Cart\DeleteCartItemController;
 use App\Http\Controllers\Storefront\Cart\UpdateCartItemController;
 use App\Http\Controllers\Storefront\Catalog\ProductController;
 use App\Http\Controllers\Storefront\Checkout\CheckoutController;
+use App\Http\Controllers\Storefront\Order\OrderController;
 use App\Http\Controllers\Webhooks\PaymentWebhookController;
 use App\Http\Middleware\EnsureCartToken;
 use Illuminate\Http\Request;
@@ -61,3 +62,28 @@ Route::prefix('webhooks')->name('webhooks.')->group(function () {
         ->whereIn('provider', ['stripe', 'paypal'])
         ->name('payments');
 });
+
+/*
+|--------------------------------------------------------------------------
+| Storefront Order Routes
+|--------------------------------------------------------------------------
+*/
+
+Route::prefix('storefront/v1')
+    ->name('storefront.')
+    ->group(function () {
+        
+        Route::prefix('orders')->name('orders.')->group(function () {
+            // List orders (authenticated or guest with email)
+            Route::get('/', [OrderController::class, 'index'])->name('index');
+            
+            // Get order by ID (authenticated only)
+            Route::get('/{id}', [OrderController::class, 'show'])->name('show');
+            
+            // Get order by number (guest with email)
+            Route::get('/lookup/{orderNumber}', [OrderController::class, 'showByNumber'])->name('show-by-number');
+            
+            // Track order
+            Route::get('/{id}/tracking', [OrderController::class, 'tracking'])->name('tracking');
+        });
+    });

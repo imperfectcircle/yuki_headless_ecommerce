@@ -25,7 +25,8 @@ class UpdateOrderStatus
             $order->transitionTo($newStatus, $note, $userId);
 
             // Dispatch event for side effects
-            OrderStatusChanged::dispatch($order, $newStatus, $note);
+            //OrderStatusChanged::dispatch($order, $newStatus, $note);
+            event(new OrderStatusChanged($order, $newStatus, $note));
         });
 
         return $order->fresh();

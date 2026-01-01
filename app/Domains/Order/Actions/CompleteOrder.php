@@ -10,7 +10,7 @@ class CompleteOrder
 {
     public function execute(Order $order, ?int $userId = null): Order
     {
-        if (!$order->isShipped) {
+        if (!$order->isShipped()) {
             throw new DomainException('Only shipped orders can be marked as delivered.');
         }
 

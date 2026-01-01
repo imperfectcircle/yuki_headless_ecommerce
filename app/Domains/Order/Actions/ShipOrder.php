@@ -14,7 +14,7 @@ class ShipOrder
         ?string $carrier = null,
         ?int $userId = null,
     ): Order {
-        if (!$order->isFulfilled) {
+        if (!$order->isFulfilled()) {
             throw new DomainException('Only fulfilled orders can be shipped.');
         }
 

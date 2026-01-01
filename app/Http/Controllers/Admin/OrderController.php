@@ -14,10 +14,9 @@ use App\Domains\Order\Models\Order;
 use App\Domains\Order\Queries\GetOrderDetail;
 use App\Domains\Order\Queries\GetOrdersForAdmin;
 use App\Domains\Order\Queries\GetOrderStatistics;
-use App\Domains\Order\Transformers\OrderDetailTransformer;
 use App\Domains\Order\Transformers\OrderListTransformer;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -26,27 +25,14 @@ use Inertia\Response;
 class OrderController extends Controller
 {
     /**
-     * Display a listing of orders
-     * 
-     * @OA\Get(
-     *   path="/api/admin/orders",
-     *   tags={"Admin Orders"},
-     *   summary="List all orders with filters",
-     *   @OA\Parameter(name="status", in="query", @OA\Schema(type="string")),
-     *   @OA\Parameter(name="customer_email", in="query", @OA\Schema(type="string")),
-     *   @OA\Parameter(name="order_number", in="query", @OA\Schema(type="string")),
-     *   @OA\Parameter(name="date_from", in="query", @OA\Schema(type="string", format="date")),
-     *   @OA\Parameter(name="date_to", in="query", @OA\Schema(type="string", format="date")),
-     *   @OA\Parameter(name="per_page", in="query", @OA\Schema(type="integer", default=15)),
-     *   @OA\Response(response=200, description="Paginated orders list")
-     * )
+     * Display a listing of orders (Inertia Page)
      */
-    public function index(Request $request, GetOrdersForAdmin $query): Response|JsonResponse
+    public function index(Request $request, GetOrdersForAdmin $query): Response
     {
         $filters = OrderFiltersDTO::fromRequest($request->all());
         $orders = $query->execute($filters);
 
-        $data = [
+        return Inertia::render('Admin/Orders/Index', [
             'orders' => [
                 'data' => OrderListTransformer::transformCollection($orders->getCollection()),
                 'meta' => [
@@ -62,161 +48,91 @@ class OrderController extends Controller
                 'statuses' => Order::getAllStatuses(),
                 'current' => $filters,
             ],
-        ];
-
-        // Return JSON for API, Inertia for web
-        if ($request->wantsJson()) {
-            return response()->json($data);
-        }
-
-        return Inertia::render('Admin/Orders/Index', $data);
+        ]);
     }
 
     /**
-     * Display order detail
-     * 
-     * @OA\Get(
-     *   path="/api/admin/orders/{id}",
-     *   tags={"Admin Orders"},
-     *   summary="Get order detail",
-     *   @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
-     *   @OA\Response(response=200, description="Order detail")
-     * )
+     * Display order detail (Inertia Page)
      */
-    public function show(int $id, GetOrderDetail $query, Request $request): Response|JsonResponse
+    public function show(int $id, GetOrderDetail $query): Response
     {
         $orderDetail = $query->execute($id);
 
-        $data = [
+        return Inertia::render('Admin/Orders/Show', [
             'order' => $orderDetail->toArray(),
             'available_statuses' => $this->getAvailableStatusTransitions($orderDetail->status),
-        ];
-
-        if ($request->wantsJson()) {
-            return response()->json(['data' => $data]);
-        }
-
-        return Inertia::render('Admin/Orders/Show');
+        ]);
     }
 
     /**
-     * Update order status
-     * 
-     * @OA\Patch(
-     *   path="/api/admin/orders/{id}/status",
-     *   tags={"Admin Orders"},
-     *   summary="Update order status",
-     *   @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
-     *   @OA\RequestBody(
-     *     required=true,
-     *     @OA\JsonContent(
-     *       required={"status"},
-     *       @OA\Property(property="status", type="string"),
-     *       @OA\Property(property="note", type="string")
-     *     )
-     *   ),
-     *   @OA\Response(response=200, description="Status updated")
-     * )
+     * Update order status (API endpoint for Inertia forms)
      */
     public function updateStatus(
         int $id,
         Request $request,
         UpdateOrderStatus $action,
-    ): JsonResponse {
+    ): RedirectResponse {
         $validated = $request->validate([
-            'status' => ['required', 'string', 'in' . implode(',', Order::getAllStatuses())],
+            'status' => ['required', 'string', 'in:' . implode(',', Order::getAllStatuses())],
             'note' => ['nullable', 'string', 'max:1000'],
         ]);
 
         $order = Order::findOrFail($id);
 
         try {
-            $updatedOrder = $action->execute(
+            $action->execute(
                 order: $order,
                 newStatus: $validated['status'],
-                note: $validated['note'],
+                note: $validated['note'] ?? null,
                 userId: auth()->id(),
             );
 
-            return response()->json([
-                'message' => 'Order status updated successfully',
-                'data' => OrderDetailTransformer::transform($updatedOrder->load([
-                    'items', 'statusHistory', 'payments'
-                ]))->toArray(),
-            ]);
+            return redirect()
+                ->back()
+                ->with('success', 'Order status updated successfully');
         } catch (\DomainException $e) {
-            return response()->json([
-                'message' => $e->getMessage(),
-            ], 422);
+            return redirect()
+                ->back()
+                ->with('error', $e->getMessage());
         }
     }
 
     /**
-     * Process order (paid -> processing)
-     * 
-     * @OA\Post(
-     *   path="/api/admin/orders/{id}/process",
-     *   tags={"Admin Orders"},
-     *   summary="Start processing order",
-     *   @OA\Response(response=200, description="Order processing started")
-     * )
+     * Process order (API endpoint for Inertia)
      */
-    public function process(int $id, ProcessOrder $action): JsonResponse
+    public function process(int $id, ProcessOrder $action): RedirectResponse
     {
         $order = Order::findOrFail($id);
 
         try {
-            $updatedOrder = $action->execute($order, auth()->id());
+            $action->execute($order, auth()->id());
 
-            return response()->json([
-                'message' => 'Order processing started',
-                'data' => OrderDetailTransformer::transform($updatedOrder->load([
-                    'items', 'statusHistory', 'payments',
-                ]))->toArray(),
-            ]);
+            return redirect()->back()->with('success', 'Order processing started');
         } catch (\DomainException $e) {
-            return response()->json(['message' => $e->getMessage()], 422);
+            return redirect()->back()->with('error', $e->getMessage());
         }
     }
 
     /**
      * Fulfill order (processing -> fulfilled)
      */
-    public function fulfill(int $id, FulfillOrder $action): JsonResponse
+    public function fulfill(int $id, FulfillOrder $action): RedirectResponse
     {
         $order = Order::findOrFail($id);
 
         try {
-            $updatedOrder = $action->execute($order, auth()->id());
+            $action->execute($order, auth()->id());
 
-            return response()->json([
-                'message' => 'Order fulfilled',
-                'data' => OrderDetailTransformer::transform($updatedOrder->load([
-                    'items', 'statusHistory', 'payments',
-                ]))->toArray(),
-            ]);
+            return redirect()->back()->with('success', 'Order fulfilled');
         } catch (\DomainException $e) {
-            return response()->json(['message' => $e->getMessage()], 422);
+            return redirect()->back()->with('error', $e->getMessage());
         }
     }
 
     /**
      * Ship order (fulfilled -> shipped)
-     * 
-     * @OA\Post(
-     *   path="/api/admin/orders/{id}/ship",
-     *   tags={"Admin Orders"},
-     *   summary="Mark order as shipped",
-     *   @OA\RequestBody(
-     *     @OA\JsonContent(
-     *       @OA\Property(property="tracking_number", type="string"),
-     *       @OA\Property(property="carrier", type="string")
-     *     )
-     *   ),
-     *   @OA\Response(response=200, description="Order shipped")
-     * )
      */
-    public function ship(int $id, Request $request, ShipOrder $action): JsonResponse
+    public function ship(int $id, Request $request, ShipOrder $action): RedirectResponse
     {
         $validated = $request->validate([
             'tracking_number' => ['nullable', 'string', 'max:255'],
@@ -226,61 +142,39 @@ class OrderController extends Controller
         $order = Order::findOrFail($id);
 
         try {
-            $updatedOrder = $action->execute(
+            $action->execute(
                 order: $order,
                 trackingNumber: $validated['tracking_number'] ?? null,
                 carrier: $validated['carrier'] ?? null,
-                userId: auth()->id,
+                userId: auth()->id(),
             );
 
-            return response()->json([
-                'message' => 'Order marked as shipped',
-                'data' => OrderDetailTransformer::transform($updatedOrder->load([
-                    'items', 'statusHistory', 'payments',
-                ]))->toArray(),
-            ]);
+            return redirect()->back()->with('success', 'Order marked as shipped');
         } catch (\DomainException $e) {
-            return response()->json(['message' => $e->getMessage()], 422);
+            return redirect()->back()->with('error', $e->getMessage());
         }
     }
 
     /**
      * Complete order (shipped -> delivered)
      */
-    public function complete(int $id, CompleteOrder $action): JsonResponse
+    public function complete(int $id, CompleteOrder $action): RedirectResponse
     {
         $order = Order::findOrFail($id);
 
         try {
-            $updatedOrder = $action->execute($order, auth()->id());
+            $action->execute($order, auth()->id());
 
-            return response()->json([
-                'message' => 'Order marked as delivered',
-                'data' => OrderDetailTransformer::transform($updatedOrder->load([
-                    'items', 'statusHistory', 'payments'
-                ]))->toArray()
-            ]);
+            return redirect()->back()->with('success', 'Order marked as delivered');
         } catch (\DomainException $e) {
-            return response()->json(['message' => $e->getMessage()], 422);
+            return redirect()->back()->with('error', $e->getMessage());
         }
     }
 
     /**
      * Cancel order
-     * 
-     * @OA\Post(
-     *   path="/api/admin/orders/{id}/cancel",
-     *   tags={"Admin Orders"},
-     *   summary="Cancel order",
-     *   @OA\RequestBody(
-     *     @OA\JsonContent(
-     *       @OA\Property(property="reason", type="string")
-     *     )
-     *   ),
-     *   @OA\Response(response=200, description="Order cancelled")
-     * )
      */
-    public function cancel(int $id, Request $request, CancelOrder $action): JsonResponse
+    public function cancel(int $id, Request $request, CancelOrder $action): RedirectResponse
     {
         $validated = $request->validate([
             'reason' => ['nullable', 'string', 'max:1000'],
@@ -289,40 +183,22 @@ class OrderController extends Controller
         $order = Order::findOrFail($id);
 
         try {
-            $updatedOrder = $action->execute(
+            $action->execute(
                 order: $order,
                 reason: $validated['reason'] ?? null,
                 userId: auth()->id(),
             );
 
-            return response()->json([
-                'message' => 'Order cancelled successfully',
-                'data' => OrderDetailTransformer::transform($updatedOrder->load([
-                    'items', 'statusHistory', 'payments',
-                ]))->toArray(),
-            ]);
+            return redirect()->back()->with('success', 'Order cancelled successfully');
         } catch (\DomainException $e) {
-            return response()->json(['message' => $e->getMessage()], 422);
+            return redirect()->back()->with('error', $e->getMessage());
         }
     }
 
     /**
      * Refund order
-     * 
-     * @OA\Post(
-     *   path="/api/admin/orders/{id}/refund",
-     *   tags={"Admin Orders"},
-     *   summary="Refund order",
-     *   @OA\RequestBody(
-     *     @OA\JsonContent(
-     *       @OA\Property(property="reason", type="string"),
-     *       @OA\Property(property="restock_inventory", type="boolean")
-     *     )
-     *   ),
-     *   @OA\Response(response=200, description="Order refunded")
-     * )
-     */
-    public function refund(int $id, Request $request, RefundOrder $action): JsonResponse
+    */
+    public function refund(int $id, Request $request, RefundOrder $action): RedirectResponse
     {
         $validated = $request->validate([
             'reason' => ['nullable', 'string', 'max:1000'],
@@ -332,31 +208,28 @@ class OrderController extends Controller
         $order = Order::findOrFail($id);
 
         try {
-            $updatedOrder = $action->execute(
+            $action->execute(
                 order: $order,
                 reason: $validated['reason'] ?? null,
                 userId: auth()->id(),
                 restockInventory: $validated['restock_inventory'] ?? true,
             );
 
-            return response()->json([
-                'message' => 'Order refunded successfully',
-                'data' => OrderDetailTransformer::transform($updatedOrder->load([
-                    'items', 'statusHistory', 'payments',
-                ]))->toArray(),
-            ]);
+            return redirect()->back()->with('success', 'Order refunded successfully');
         } catch (\DomainException $e) {
-            return response()->json(['message' => $e->getMessage()], 422);
+            return redirect()->back()->with('error', $e->getMessage());
         }
     }
 
     /**
      * Get order statistics
      */
-    public function statistics(GetOrderStatistics $query): JsonResponse
+    public function statistics(GetOrderStatistics $query): Response
     {
-        return response()->json([
-            'data' => $query->execute(),
+        $stats = $query->execute();
+
+        return Inertia::render('Admin/Orders/Statistics', [
+            'stats' => $stats,
         ]);
     }
 

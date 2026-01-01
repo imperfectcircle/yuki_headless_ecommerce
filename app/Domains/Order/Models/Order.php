@@ -5,6 +5,7 @@ namespace App\Domains\Order\Models;
 use App\Domains\Customer\Models\CustomerProfile;
 use App\Domains\Order\Models\OrderItem;
 use App\Domains\Payments\Models\Payment;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 class Order extends Model
@@ -58,6 +59,11 @@ class Order extends Model
         'guest_checkout' => 'boolean',
         'reserved_until' => 'datetime',
     ];
+
+    /**
+     * The accessors to append to the model's array form.
+     */
+    protected $appends = [];
 
     // ==========================================
     // RELATIONSHIPS
@@ -330,11 +336,19 @@ class Order extends Model
     public function scopeDateRange($query, ?string $from, ?string $to)
     {
         if ($from) {
-            $query->where('created_at', '>=', $from);
+            $query->where(
+                'created_at',
+                '>=',
+                Carbon::createFromFormat('Y-m-d', $from)->startOfDay()
+            );
         }
 
         if ($to) {
-            $query->where('creates_at', '<=', $to);
+            $query->where(
+                'created_at',
+                '<=',
+                Carbon::createFromFormat('Y-m-d', $to)->endOfDay()
+            );
         }
 
         return $query;
