@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Domains\Order\Dtos;
+namespace App\Domains\Order\DTOs;
 
-final readonly class OrderDetailDto
+final readonly class OrderDetailDTO
 {
     public function __construct(
         public int $id,

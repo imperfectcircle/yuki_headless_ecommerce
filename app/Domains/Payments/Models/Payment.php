@@ -6,6 +6,35 @@ use App\Domains\Order\Models\Order;
 use DomainException;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property int $id
+ * @property int $order_id
+ * @property string $provider
+ * @property string|null $provider_reference
+ * @property string $status
+ * @property int $amount
+ * @property string $currency
+ * @property array<array-key, mixed>|null $payload
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read Order $order
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment byProvider(string $provider)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment pending()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment whereAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment whereCurrency($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment whereOrderId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment wherePayload($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment whereProvider($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment whereProviderReference($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class Payment extends Model
 {
     public const STATUS_PENDING = 'pending';

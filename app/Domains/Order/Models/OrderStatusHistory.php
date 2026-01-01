@@ -5,6 +5,34 @@ namespace App\Domains\Order\Models;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property int $id
+ * @property int $order_id
+ * @property string $from_status
+ * @property string $to_status
+ * @property string|null $note
+ * @property int|null $user_id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Domains\Order\Models\Order $order
+ * @property-read User|null $user
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderStatusHistory automated()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderStatusHistory fromStatus(string $status)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderStatusHistory manual()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderStatusHistory newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderStatusHistory newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderStatusHistory query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderStatusHistory toStatus(string $status)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderStatusHistory whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderStatusHistory whereFromStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderStatusHistory whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderStatusHistory whereNote($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderStatusHistory whereOrderId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderStatusHistory whereToStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderStatusHistory whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderStatusHistory whereUserId($value)
+ * @mixin \Eloquent
+ */
 class OrderStatusHistory extends Model
 {
     protected $table = 'order_status_history';

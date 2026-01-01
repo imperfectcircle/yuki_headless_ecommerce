@@ -8,6 +8,32 @@ use App\Domains\Inventory\Models\Inventory;
 use App\Domains\Catalog\Models\AttributeOption;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property int $id
+ * @property int $product_id
+ * @property string $sku
+ * @property array<array-key, mixed>|null $attributes
+ * @property bool $is_active
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read Inventory|null $inventory
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, AttributeOption> $options
+ * @property-read int|null $options_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Price> $prices
+ * @property-read int|null $prices_count
+ * @property-read Product $product
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductVariant newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductVariant newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductVariant query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductVariant whereAttributes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductVariant whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductVariant whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductVariant whereIsActive($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductVariant whereProductId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductVariant whereSku($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductVariant whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class ProductVariant extends Model
 {
     protected $fillable = [

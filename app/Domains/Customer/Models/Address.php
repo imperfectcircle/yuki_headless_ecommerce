@@ -5,6 +5,47 @@ namespace App\Domains\Customer\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property int $id
+ * @property int $customer_profile_id
+ * @property string $type
+ * @property string $name
+ * @property string|null $company
+ * @property string $address_line_1
+ * @property string|null $address_line_2
+ * @property string $city
+ * @property string|null $state
+ * @property string $postal_code
+ * @property string $country
+ * @property string|null $phone
+ * @property bool $is_default
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Domains\Customer\Models\CustomerProfile $customerProfile
+ * @property-read string $formatted
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Address billing()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Address default()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Address newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Address newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Address query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Address shipping()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Address whereAddressLine1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Address whereAddressLine2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Address whereCity($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Address whereCompany($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Address whereCountry($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Address whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Address whereCustomerProfileId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Address whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Address whereIsDefault($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Address whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Address wherePhone($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Address wherePostalCode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Address whereState($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Address whereType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Address whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class Address extends Model
 {
     use HasFactory;

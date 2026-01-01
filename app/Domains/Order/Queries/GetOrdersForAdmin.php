@@ -2,13 +2,13 @@
 
 namespace App\Domains\Order\Queries;
 
-use App\Domains\Order\Dtos\OrderFiltersDto;
+use App\Domains\Order\DTOs\OrderFiltersDTO;
 use App\Domains\Order\Models\Order;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class GetOrdersForAdmin
 {
-    public function execute(OrderFiltersDto $filters): LengthAwarePaginator
+    public function execute(OrderFiltersDTO $filters): LengthAwarePaginator
     {
         $query = Order::query()
             ->with(['items', 'customerProfile'])

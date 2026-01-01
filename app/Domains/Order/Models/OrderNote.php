@@ -5,6 +5,32 @@ namespace App\Domains\Order\Models;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property int $id
+ * @property int $order_id
+ * @property string $note
+ * @property bool $is_internal
+ * @property int|null $user_id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Domains\Order\Models\Order $order
+ * @property-read User|null $user
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderNote byUser(int $userId)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderNote customerVisible()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderNote internal()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderNote newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderNote newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderNote query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderNote recent()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderNote whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderNote whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderNote whereIsInternal($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderNote whereNote($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderNote whereOrderId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderNote whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderNote whereUserId($value)
+ * @mixin \Eloquent
+ */
 class OrderNote extends Model
 {
     protected $fillable = [

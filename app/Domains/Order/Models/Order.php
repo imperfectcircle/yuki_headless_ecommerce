@@ -8,6 +8,67 @@ use App\Domains\Payments\Models\Payment;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property int $id
+ * @property int|null $customer_profile_id
+ * @property string $number
+ * @property string $status
+ * @property string $currency
+ * @property int $subtotal
+ * @property int $tax_total
+ * @property int $shipping_total
+ * @property int $grand_total
+ * @property string $customer_email
+ * @property string|null $customer_full_name
+ * @property string|null $customer_phone
+ * @property array<array-key, mixed>|null $shipping_address
+ * @property array<array-key, mixed>|null $billing_address
+ * @property bool $guest_checkout
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $reserved_until
+ * @property \Illuminate\Database\Eloquent\Collection<int, \App\Domains\Order\Models\OrderNote> $notes
+ * @property-read CustomerProfile|null $customerProfile
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, OrderItem> $items
+ * @property-read int|null $items_count
+ * @property-read int|null $notes_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Payment> $payments
+ * @property-read int|null $payments_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Domains\Order\Models\OrderStatusHistory> $statusHistory
+ * @property-read int|null $status_history_count
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order byCustomerEmail(string $email)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order byOrderNumber(string $number)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order byStatus(string $status)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order dateRange(?string $from, ?string $to)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order expiredReservations()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order guest()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order registered()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order reserved()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereBillingAddress($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereCurrency($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereCustomerEmail($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereCustomerFullName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereCustomerPhone($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereCustomerProfileId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereGrandTotal($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereGuestCheckout($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereNotes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereNumber($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereReservedUntil($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereShippingAddress($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereShippingTotal($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereSubtotal($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereTaxTotal($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order withRelations()
+ * @mixin \Eloquent
+ */
 class Order extends Model
 {
     // ==========================================

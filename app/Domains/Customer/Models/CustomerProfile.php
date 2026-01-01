@@ -6,6 +6,38 @@ use App\Domains\Order\Models\Order;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property int $id
+ * @property int|null $storefront_user_id
+ * @property string $email
+ * @property string|null $first_name
+ * @property string|null $last_name
+ * @property string|null $phone
+ * @property bool $accepts_marketing
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Domains\Customer\Models\Address> $addresses
+ * @property-read int|null $addresses_count
+ * @property-read string $full_name
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Order> $orders
+ * @property-read int|null $orders_count
+ * @property-read \App\Domains\Customer\Models\StorefrontUser|null $storefrontUser
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CustomerProfile guest()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CustomerProfile newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CustomerProfile newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CustomerProfile query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CustomerProfile registered()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CustomerProfile whereAcceptsMarketing($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CustomerProfile whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CustomerProfile whereEmail($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CustomerProfile whereFirstName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CustomerProfile whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CustomerProfile whereLastName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CustomerProfile wherePhone($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CustomerProfile whereStorefrontUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CustomerProfile whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class CustomerProfile extends Model
 {
     use HasFactory;

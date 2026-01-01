@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domains\Order\Dtos;
+namespace App\Domains\Order\DTOs;
 
 final readonly class OrderItemDTO
 {

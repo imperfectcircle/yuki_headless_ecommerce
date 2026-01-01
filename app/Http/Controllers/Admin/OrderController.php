@@ -9,7 +9,7 @@ use App\Domains\Order\Actions\ProcessOrder;
 use App\Domains\Order\Actions\RefundOrder;
 use App\Domains\Order\Actions\ShipOrder;
 use App\Domains\Order\Actions\UpdateOrderStatus;
-use App\Domains\Order\Dtos\OrderFiltersDto;
+use App\Domains\Order\DTOs\OrderFiltersDto;
 use App\Domains\Order\Models\Order;
 use App\Domains\Order\Queries\GetOrderDetail;
 use App\Domains\Order\Queries\GetOrdersForAdmin;

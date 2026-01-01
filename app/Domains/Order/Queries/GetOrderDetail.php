@@ -2,15 +2,14 @@
 
 namespace App\Domains\Order\Queries;
 
-use App\Domains\Order\Dtos\OrderDetailDto;
-use App\Domains\Order\Dtos\OrderItemDTO;
-use App\Domains\Order\Dtos\OrderTimelineEventDTO;
+use App\Domains\Order\DTOs\OrderDetailDTO;
+use App\Domains\Order\DTOs\OrderItemDTO;
+use App\Domains\Order\DTOs\OrderTimelineEventDTO;
 use App\Domains\Order\Models\Order;
-use GuzzleHttp\Promise\Create;
 
 class GetOrderDetail
 {
-    public function execute(int $orderId): OrderDetailDto
+    public function execute(int $orderId): OrderDetailDTO
     {
         $order = Order::query()
             ->withRelations()
@@ -19,7 +18,7 @@ class GetOrderDetail
         return $this->transform($order);
     }
 
-    public function executeByNumber(string $orderNumber): OrderDetailDto
+    public function executeByNumber(string $orderNumber): OrderDetailDTO
     {
         $order = Order::query()
             ->withRelations()
@@ -29,7 +28,7 @@ class GetOrderDetail
         return $this->transform($order);
     }
 
-    public function executeForCustomer(int $orderId, int $customerProfileId): OrderDetailDto
+    public function executeForCustomer(int $orderId, int $customerProfileId): OrderDetailDTO
     {
         $order = Order::query()
             ->withRelations()
@@ -40,7 +39,7 @@ class GetOrderDetail
         return $this->transform($order);
     }
 
-    public function executeForGuestByNumberAndEmail(string $orderNumber, string $email): OrderDetailDto
+    public function executeForGuestByNumberAndEmail(string $orderNumber, string $email): OrderDetailDTO
     {
         $order = Order::query()
             ->withRelations()
@@ -53,7 +52,7 @@ class GetOrderDetail
     }
 
     // Transform items
-    private function transform(Order $order): OrderDetailDto
+    private function transform(Order $order): OrderDetailDTO
     {
         $items = $order->items->map(function ($item) {
             return new OrderItemDTO(
@@ -71,7 +70,7 @@ class GetOrderDetail
         // Build timeline from status history and payments
         $timeline = $this->buildTimeline($order);
 
-        return new OrderDetailDto(
+        return new OrderDetailDTO(
             id: $order->id,
             number: $order->number,
             status: $order->status,

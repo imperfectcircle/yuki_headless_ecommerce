@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Domains\Order\Dtos;
+namespace App\Domains\Order\DTOs;
 
-final readonly class OrderFiltersDto
+final readonly class OrderFiltersDTO
 {
     public function __construct(
         public ?string $status = null,

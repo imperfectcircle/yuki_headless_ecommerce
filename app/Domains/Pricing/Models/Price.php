@@ -8,6 +8,38 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Carbon;
 
+/**
+ * @property int $id
+ * @property string $priceable_type
+ * @property int $priceable_id
+ * @property string $currency
+ * @property int $amount
+ * @property float $vat_rate
+ * @property Carbon|null $valid_from
+ * @property Carbon|null $valid_to
+ * @property bool $is_active
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Model|\Eloquent $priceable
+ * @method static Builder<static>|Price active()
+ * @method static Builder<static>|Price byCurrency(string $currency)
+ * @method static Builder<static>|Price newModelQuery()
+ * @method static Builder<static>|Price newQuery()
+ * @method static Builder<static>|Price query()
+ * @method static Builder<static>|Price validAt(?\Illuminate\Support\Carbon $at = null)
+ * @method static Builder<static>|Price whereAmount($value)
+ * @method static Builder<static>|Price whereCreatedAt($value)
+ * @method static Builder<static>|Price whereCurrency($value)
+ * @method static Builder<static>|Price whereId($value)
+ * @method static Builder<static>|Price whereIsActive($value)
+ * @method static Builder<static>|Price wherePriceableId($value)
+ * @method static Builder<static>|Price wherePriceableType($value)
+ * @method static Builder<static>|Price whereUpdatedAt($value)
+ * @method static Builder<static>|Price whereValidFrom($value)
+ * @method static Builder<static>|Price whereValidTo($value)
+ * @method static Builder<static>|Price whereVatRate($value)
+ * @mixin \Eloquent
+ */
 class Price extends Model
 {
     protected $fillable = [

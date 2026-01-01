@@ -2,14 +2,14 @@
 
 namespace App\Domains\Order\Transformers;
 
-use App\Domains\Order\Dtos\OrderDetailDto;
-use App\Domains\Order\Dtos\OrderItemDTO;
-use App\Domains\Order\Dtos\OrderTimelineEventDTO;
+use App\Domains\Order\DTOs\OrderDetailDto;
+use App\Domains\Order\DTOs\OrderItemDTO;
+use App\Domains\Order\DTOs\OrderTimelineEventDTO;
 use App\Domains\Order\Models\Order;
 
 class OrderDetailTransformer
 {
-    public function transform(Order $order): OrderDetailDto
+    public function transform(Order $order): OrderDetailDTO
     {
         $items = $order->items->map(function ($item) {
             return new OrderItemDTO(
@@ -26,7 +26,7 @@ class OrderDetailTransformer
 
         $timeline = self::buildTimeline($order);
 
-        return new OrderDetailDto(
+        return new OrderDetailDTO(
             id: $order->id,
             number: $order->number,
             status: $order->status,
