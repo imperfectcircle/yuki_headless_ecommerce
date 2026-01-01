@@ -25,7 +25,7 @@ use Illuminate\Validation\ValidationException;
  *   description="Authentication endpoints for storefront users"
  * )
  */
-class AuthController
+class AuthController extends Controller
 {
     /**
      * @OA\Post(
