@@ -123,4 +123,14 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Frontend URL
+    |--------------------------------------------------------------------------
+    |
+    | The URL of your frontend application. Used for generating email links.
+    |
+    */
+    'frontend_url' => env('FRONTEND_URL', env('APP_URL')),
+
 ];
