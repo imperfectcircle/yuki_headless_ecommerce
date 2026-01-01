@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Storefront\Auth\AuthController;
 use App\Http\Controllers\Storefront\Cart\AddCartItemController;
 use App\Http\Controllers\Storefront\Cart\CartController;
 use App\Http\Controllers\Storefront\Cart\CreateCartController;
@@ -17,14 +18,32 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-/*
+/**
 |--------------------------------------------------------------------------
 | Storefront API Routes (v1)
 |--------------------------------------------------------------------------
 */
-
 Route::prefix('storefront/v1')->name('storefront.')->group(function () {
-    
+   
+    /**
+    |--------------------------------------------------------------------------
+    | Authentication Routes
+    |--------------------------------------------------------------------------
+    */
+    Route::prefix('auth')->name('auth.')->group(function () {
+        // Public routes
+        Route::post('/register', [AuthController::class, 'register'])->name('register');
+        Route::post('/login', [AuthController::class, 'login'])->name('login');
+        Route::post('/verify-email', [AuthController::class, 'verifyEmail'])->name('verify-email');
+        
+        // Protected routes
+        Route::middleware('auth:sanctum')->group(function () {
+            Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+            Route::get('/me', [AuthController::class, 'me'])->name('me');
+            Route::post('/resend-verification', [AuthController::class, 'resendVerification'])->name('resend-verification');
+        });
+    });
+
     // Catalog (Public - No authentication required)
     Route::prefix('products')->name('products.')->group(function () {
         Route::get('/', [ProductController::class, 'index'])->name('index');
@@ -48,7 +67,7 @@ Route::prefix('storefront/v1')->name('storefront.')->group(function () {
     });
 });
 
-/*
+/**
 |--------------------------------------------------------------------------
 | Webhook Routes
 |--------------------------------------------------------------------------
@@ -56,7 +75,6 @@ Route::prefix('storefront/v1')->name('storefront.')->group(function () {
 | These routes receive webhooks from payment providers.
 | They should NOT have CSRF protection.
 */
-
 Route::prefix('webhooks')->name('webhooks.')->group(function () {
     Route::post('/payments/{provider}', [PaymentWebhookController::class, '__invoke'])
         ->whereIn('provider', ['stripe', 'paypal'])
