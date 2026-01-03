@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Mail\Order\Auth;
+namespace App\Mail\Auth;
 
 use App\Domains\Customer\Models\StorefrontUser;
 use Illuminate\Bus\Queueable;
@@ -17,7 +17,7 @@ class WelcomeMail extends Mailable
 
     public function build(): self
     {
-        $shopUrl = config(app.frontend_url);
+        $shopUrl = config('app.frontend_url');
 
         return $this
             ->subject(__('mail.welcome_subject'))

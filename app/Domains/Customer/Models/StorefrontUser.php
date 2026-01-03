@@ -8,7 +8,6 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 
 use Laravel\Sanctum\HasApiTokens;
-use function Symfony\Component\Clock\now;
 
 /**
  * @property int $id
@@ -81,7 +80,7 @@ class StorefrontUser extends Authenticatable
             'verification_token' => null,
         ]);
     }
-
+    
     public function generateVerificationToken(): string
     {
         $token = Str::random(64);

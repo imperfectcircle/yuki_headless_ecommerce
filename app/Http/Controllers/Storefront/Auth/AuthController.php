@@ -16,6 +16,7 @@ use App\Http\Requests\Storefront\Auth\LoginRequest;
 use App\Http\Requests\Storefront\Auth\RegisterRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
@@ -64,8 +65,8 @@ class AuthController extends Controller
         // Dispatch registration event with profile linking info
         UserRegistered::dispatch(
             $user,
-            hasLinkedProfile: $linkedProfile !== null,
-            linkedOrderCount: $linkedProfile ? $linkedProfile->orders()->count() : null
+            $linkedProfile !== null,
+            $linkedProfile ? $linkedProfile->orders()->count() : null
         );
 
         // Create token
@@ -156,7 +157,9 @@ class AuthController extends Controller
     {
         $user = $request->user();
 
-        $request->user()->currentAccessToken()->delete();
+        if ($token = $request->user()->currentAccessToken()){
+            $token->delete();
+        }
 
         UserLoggedOut::dispatch($user);
 
@@ -180,6 +183,15 @@ class AuthController extends Controller
     public function me(Request $request): JsonResponse
     {
         $user = $request->user();
+        
+        /**
+        // Verify token still exists and is valid
+        if (!$user || !$request->user()->currentAccessToken()) {
+            return response()->json([
+                'message' => 'Unauthorized'
+            ], 401);
+        }
+        */
         $profile = $user->profile;
 
         return response()->json([
@@ -228,6 +240,7 @@ class AuthController extends Controller
         ]);
 
         try {
+            \Log::info('Controller verifyEmail chiamato con token: ' . $validated['token']);
             $user = $verifyEmail->execute($validated['token']);
 
             return response()->json([
@@ -240,7 +253,11 @@ class AuthController extends Controller
                     ],
                 ],
             ]);
+            
         } catch (\DomainException $e) {
+            \Log::error('Errore verifyEmail: ' . $e->getMessage());
+            \Log::error($e->getTraceAsString());
+            
             return response()->json([
                 'message' => $e->getMessage(),
             ], 400);

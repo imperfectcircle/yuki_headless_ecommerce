@@ -151,7 +151,7 @@ test('UserLoggedOut event is dispatched on logout', function () {
 
     $token = $user->createToken('auth_token')->plainTextToken;
 
-    postJson('/api/storefront/v1/auth/logout', [], [
+    postJson('/api/storefront/v1/auth/logout-storefront', [], [
         'Authorization' => "Bearer $token",
     ]);
 
@@ -172,7 +172,7 @@ test('EmailVerified event is dispatched on email verification', function () {
         'verification_token' => 'test-token-123',
     ]);
 
-    postJson('/api/storefront/v1/auth/verify-email', [
+    postJson('/api/storefront/v1/auth/verify-account', [
         'token' => 'test-token-123',
     ]);
 

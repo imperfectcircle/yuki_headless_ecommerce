@@ -5,8 +5,10 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Application;
 use App\Http\Controllers\ProfileController;
 use App\Admin\Controllers\ProductController;
+use App\Domains\Customer\Actions\VerifyStorefrontUserEmail;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\PaymentProviderController;
+use Illuminate\Http\Request;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -59,5 +61,29 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
         Route::patch('/{id}/status', [OrderController::class, 'updateStatus'])->name('update-status');
     });
 });
+
+// Test
+Route::get('/verify-account', function (Request $request) {
+    $token = $request->query('token');
+    
+    if (!$token) {
+        return view('auth.verification-error', [
+            'message' => 'Token mancante'
+        ]);
+    }
+    
+    try {
+        $verifyEmail = new VerifyStorefrontUserEmail();
+        $user = $verifyEmail->execute($token);
+        
+        return view('auth.verification-success', [
+            'email' => $user->email
+        ]);
+    } catch (\DomainException $e) {
+        return view('auth.verification-error', [
+            'message' => $e->getMessage()
+        ]);
+    }
+})->name('verify-email');
 
 require __DIR__.'/auth.php';

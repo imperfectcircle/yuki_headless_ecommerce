@@ -18,7 +18,7 @@ class VerifyEmailMail extends Mailable
     public function build(): self
     {
         $verificationUrl = config('app.frontend_url')
-            . '/verify-email?token='
+            . '/verify-account?token='
             . $this->user->verification_token;
 
         return $this
