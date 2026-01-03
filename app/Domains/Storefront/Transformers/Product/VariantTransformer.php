@@ -24,9 +24,13 @@ final class VariantTransformer
             'id' => $variant->id,
             'sku' => $variant->sku,
             'attributes' => $variant->attributes ?? [],
-            'price' => $price
-             ? app(CurrencyFormatter::class)->format($price->amount, $currency)
-             : null,
+            'price' => $price ? [
+                'amount' => $price->amount,
+                'currency' => $currency,
+                'formatted' => app(CurrencyFormatter::class)
+                    ->format($price->amount, $currency),
+            ] : null,
+
             'currency' => $currency,
             'available' => $available,
             'is_active' => $variant->is_active,
