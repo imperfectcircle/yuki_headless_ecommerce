@@ -3,6 +3,8 @@
 namespace App\Domains\Storefront\Transformers\Product;
 
 use App\Domains\Catalog\Models\ProductVariant;
+use App\Domains\Pricing\Services\CurrencyFormatter;
+
 
 final class VariantTransformer
 {
@@ -22,7 +24,13 @@ final class VariantTransformer
             'id' => $variant->id,
             'sku' => $variant->sku,
             'attributes' => $variant->attributes ?? [],
-            'price' => $price->amount ?? 0,
+            'price' => $price ? [
+                'amount' => $price->amount,
+                'currency' => $currency,
+                'formatted' => app(CurrencyFormatter::class)
+                    ->format($price->amount, $currency),
+            ] : null,
+
             'currency' => $currency,
             'available' => $available,
             'is_active' => $variant->is_active,
